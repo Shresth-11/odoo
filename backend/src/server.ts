@@ -6,6 +6,27 @@ import path from "path";
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
+import db from "./config/db";
+
+// Run database migrations and seeds automatically on startup
+const runDbInitialization = async () => {
+  try {
+    console.log("[Database] Running migrations...");
+    await db.migrate.latest({
+      directory: path.join(__dirname, "./db/migrations"),
+    });
+    console.log("[Database] Running seeds...");
+    await db.seed.run({
+      directory: path.join(__dirname, "./db/seeds"),
+    });
+    console.log("[Database] Initialization and mock seeding completed!");
+  } catch (error) {
+    console.error("[Database] Failed to migrate or seed on startup:", error);
+  }
+};
+
+runDbInitialization();
+
 // Import routes
 import authRouter from "./routes/auth";
 import orgRouter from "./routes/org";
