@@ -26,13 +26,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 
   const menuItems = [
     { path: "/", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
-    { path: "/org-setup", label: "Organization setup", icon: Settings, roles: ["Admin"] },
+    { path: "/org-setup", label: "Organization setup", icon: Settings, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
     { path: "/assets", label: "Assets", icon: Box, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
     { path: "/allocations", label: "Allocation & Transfer", icon: Share2, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
     { path: "/bookings", label: "Resource Booking", icon: CalendarDays, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
     { path: "/maintenance", label: "Maintenance", icon: Wrench, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
     { path: "/audits", label: "Audit", icon: ClipboardCheck, roles: ["Admin", "Employee"] },
-    { path: "/reports", label: "Reports", icon: BarChart3, roles: ["Admin", "AssetManager", "DepartmentHead"] },
+    { path: "/reports", label: "Reports", icon: BarChart3, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
     { path: "/notifications", label: "Notifications", icon: Bell, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
   ];
 

@@ -67,7 +67,7 @@ const AppLayout: React.FC = () => {
             <Route
               path="/reports"
               element={
-                <ProtectedRoute allowedRoles={["Admin", "AssetManager", "DepartmentHead"]}>
+                <ProtectedRoute allowedRoles={["Admin", "AssetManager", "DepartmentHead", "Employee"]}>
                   <Reports />
                 </ProtectedRoute>
               }
@@ -75,7 +75,7 @@ const AppLayout: React.FC = () => {
             <Route
               path="/org-setup"
               element={
-                <ProtectedRoute allowedRoles={["Admin"]}>
+                <ProtectedRoute allowedRoles={["Admin", "AssetManager", "DepartmentHead", "Employee"]}>
                   <OrgSetup />
                 </ProtectedRoute>
               }
