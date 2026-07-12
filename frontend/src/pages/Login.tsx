@@ -96,13 +96,13 @@ export const Login: React.FC = () => {
   const fillCredentials = (type: "admin" | "employee" | "manager") => {
     if (type === "admin") {
       setEmail("admin@assetflow.com");
-      setPassword("adminpassword");
+      setPassword("AssetFlowSecure2026!");
     } else if (type === "employee") {
       setEmail("employee@assetflow.com");
-      setPassword("employeepassword");
+      setPassword("AssetFlowSecure2026!");
     } else if (type === "manager") {
       setEmail("manager@assetflow.com");
-      setPassword("employeepassword");
+      setPassword("AssetFlowSecure2026!");
     }
     setFormState("login");
   };

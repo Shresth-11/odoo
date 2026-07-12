@@ -1,5 +1,9 @@
 import { Knex } from "knex";
 import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
+import path from "path";
+
+dotenv.config({ path: path.join(__dirname, "../../../.env") });
 
 export async function seed(knex: Knex): Promise<void> {
   // Deletes ALL existing entries in reverse order
@@ -61,7 +65,8 @@ export async function seed(knex: Knex): Promise<void> {
     .returning("id");
 
   // 2. Insert Employees (Aditi Rao, Rohan Mehta, Sana Iqbal, Priya Shah, Arjun Nair)
-  const empPasswordHash = await bcrypt.hash("employeepassword", 10);
+  const rawPassword = process.env.SEED_USER_PASSWORD || "AssetFlowSecure2026!";
+  const empPasswordHash = await bcrypt.hash(rawPassword, 10);
 
   // System Admin (Jane AssetMgr as Admin/Manager)
   const [adminEmployee] = await knex("employees")

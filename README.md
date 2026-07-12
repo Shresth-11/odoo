@@ -77,10 +77,10 @@ The login screen contains **quick-fill buttons** at the bottom to easily switch 
 
 | Role | Username (Email) | Password | Scoped Permissions |
 | :--- | :--- | :--- | :--- |
-| **Admin** | `admin@assetflow.com` | `adminpassword` | Departments hierarchy, role promotions, audit scheduling, analytics |
-| **Asset Manager** | `manager@assetflow.com` | `employeepassword` | Registering assets, issuing allocations, approving transfers, technician logs |
-| **Department Head** | `head@assetflow.com` | `employeepassword` | Book resources, approve department requests, view department custody |
-| **Employee** | `employee@assetflow.com` | `employeepassword` | View own allocated assets, request booking, raise maintenance, start transfer |
+| **Admin** | `admin@assetflow.com` | `AssetFlowSecure2026!` | Departments hierarchy, role promotions, audit scheduling, analytics |
+| **Asset Manager** | `manager@assetflow.com` | `AssetFlowSecure2026!` | Registering assets, issuing allocations, approving transfers, technician logs |
+| **Department Head** | `head@assetflow.com` | `AssetFlowSecure2026!` | Book resources, approve department requests, view department custody |
+| **Employee** | `employee@assetflow.com` | `AssetFlowSecure2026!` | View own allocated assets, request booking, raise maintenance, start transfer |
 
 ---
 
