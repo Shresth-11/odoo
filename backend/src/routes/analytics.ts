@@ -68,6 +68,7 @@ router.get("/dashboard", authenticateJWT, async (req: AuthenticatedRequest, res)
     await sweepOverdueRecords();
 
     // 2. Query KPIs
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
     const assetStats = await db("assets")
       .select("status")
       .count("id as count")
@@ -107,6 +108,17 @@ router.get("/dashboard", authenticateJWT, async (req: AuthenticatedRequest, res)
       .count("id as count")
       .first();
 
+    const availableResourcesCount = await db("assets")
+      .where({ is_bookable: true, status: "Available" })
+      .count("id as count")
+      .first();
+
+    const upcomingReturnsCount = await db("asset_allocations")
+      .where("status", "Active")
+      .where("expected_return_date", ">=", today)
+      .count("id as count")
+      .first();
+
     // 3. Fetch overdue items details
     const overdueItems = await db("asset_allocations")
       .select(
@@ -141,6 +153,8 @@ router.get("/dashboard", authenticateJWT, async (req: AuthenticatedRequest, res)
         pendingTransfers: parseInt(String(pendingTransfers?.count || 0)),
         overdueAllocations: parseInt(String(overdueAllocationsCount?.count || 0)),
         pendingMaintenance: parseInt(String(pendingMaintenanceCount?.count || 0)),
+        availableResources: parseInt(String(availableResourcesCount?.count || 0)),
+        upcomingReturns: parseInt(String(upcomingReturnsCount?.count || 0)),
       },
       overdueItems,
       recentActivity,

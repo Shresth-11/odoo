@@ -65,7 +65,7 @@ router.get("/:id/history", authenticateJWT, async (req: AuthenticatedRequest, re
 router.post(
   "/",
   authenticateJWT,
-  requireRole(["AssetManager"]),
+  requireRole(["AssetManager", "Admin"]),
   async (req: AuthenticatedRequest, res) => {
     try {
       const data = assetSchema.parse(req.body);
@@ -94,7 +94,7 @@ router.post(
 router.put(
   "/:id",
   authenticateJWT,
-  requireRole(["AssetManager"]),
+  requireRole(["AssetManager", "Admin"]),
   async (req: AuthenticatedRequest, res) => {
     try {
       const { id } = req.params;

@@ -1,40 +1,41 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
 
 :root {
-  /* Color Palette - Legora-Inspired Restraint */
-  --bg-primary: #FAFBFD;             /* Clean, off-white workspace background */
+  /* Color Palette - Neo-Brutalist High Contrast */
+  --bg-primary: #fdfaf4;             /* Light Warm Cream background */
   --bg-secondary: #FFFFFF;           /* Crisp card backgrounds */
-  --bg-tertiary: #F1F5F9;
-  --sidebar-bg: #0B0F19;             /* Elegant, dark slate sidebar */
-  --border-color: #E9EDF2;           /* Subtle card borders */
+  --bg-tertiary: #f5f2eb;
+  --sidebar-bg: #1a1a1a;             /* High contrast dark gray/black sidebar */
+  --border-color: #1a1a1a;           /* Thick high-contrast borders */
   
-  --accent-primary: #312E81;         /* Restrained deep royal indigo brand color */
-  --accent-primary-hover: #1E1B4B;   /* Hover state indigo */
-  --accent-gradient: linear-gradient(135deg, #312E81 0%, #4338CA 100%);
-  --accent-gradient-hover: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+  --accent-primary: #bdb2ff;         /* Pastel Lavender brand color */
+  --accent-primary-hover: #a0c4ff;   /* Pastel Sky Blue hover */
+  --accent-gradient: linear-gradient(135deg, #bdb2ff 0%, #a0c4ff 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #a0c4ff 0%, #ffadad 100%);
   
-  /* Semantic Accents - Used sparingly only for status tags and actions */
-  --success: #10B981;                /* Warm success emerald */
-  --warning: #F59E0B;                /* Soft warning amber */
-  --danger: #F43F5E;                 /* Gentle rose/red danger */
-  --info: #0EA5E9;                   /* Clear sky-blue information */
+  /* Semantic Accents - Vibrant Retro Pastel Colors */
+  --success: #caffbf;                /* Pastel Mint */
+  --warning: #ffd6a5;                /* Pastel Yellow */
+  --danger: #ffadad;                 /* Pastel Orange/Red Coral */
+  --info: #9bf6ff;                   /* Pastel Aqua/Teal */
 
   /* Typography Scale */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --text-primary: #0F172A;           /* Deep dark slate for maximum readability */
-  --text-secondary: #475569;         /* Muted grey slate */
-  --text-muted: #94A3B8;             /* Light caption muted grey */
+  --font-sans: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --text-primary: #1a1a1a;           /* Deep dark charcoal/black for maximum readability */
+  --text-secondary: #4a4a4a;         /* Charcoal gray */
+  --text-muted: #7a7a7a;             /* Muted grey */
 
-  /* Border Radius - Maxima Therapy Warmth */
-  --radius-sm: 8px;                  /* For badges and tag inputs */
-  --radius-md: 12px;                 /* Main card & button rounding (approachable/warm) */
-  --radius-lg: 16px;                 /* Layout panels & dialog modal containers */
+  /* Border Radius - Neo-Brutalist tight corners */
+  --radius-sm: 4px;                  
+  --radius-md: 6px;                 
+  --radius-lg: 8px;                 
 
-  /* Shadows - Subtle/Clean depth elevation scale */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01);
-  --shadow-md: 0 10px 20px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -2px rgba(0, 0, 0, 0.02), 0 0 0 1px rgba(0, 0, 0, 0.01);
-  --shadow-lg: 0 20px 32px -4px rgba(0, 0, 0, 0.04), 0 8px 12px -6px rgba(0, 0, 0, 0.03), 0 0 0 1px rgba(0, 0, 0, 0.015);
-  --shadow-premium: 0 30px 48px -6px rgba(0, 0, 0, 0.05), 0 12px 18px -8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.015);
+  /* Shadows - Heavy flat drop shadows */
+  --shadow-sm: 3px 3px 0px #1a1a1a;
+  --shadow-md: 5px 5px 0px #1a1a1a;
+  --shadow-lg: 8px 8px 0px #1a1a1a;
+  --shadow-premium: 10px 10px 0px #1a1a1a;
   
   --sidebar-width: 260px;
   --header-height: 70px;
@@ -356,16 +357,17 @@ body {
 
 .card {
   background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 24px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: #CBD5E1;
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-color);
 }
 
 .card-header {
@@ -413,8 +415,8 @@ body {
 .form-control {
   width: 100%;
   padding: 10px 14px;
-  background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background-color: #ffffff;
+  border: 2px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -425,8 +427,8 @@ body {
 .form-control:focus {
   outline: none;
   background-color: white;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(49, 46, 129, 0.12);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .form-control::placeholder {
@@ -450,49 +452,73 @@ body {
   gap: 8px;
   padding: 10px 18px;
   font-size: 13.5px;
-  font-weight: 500;
+  font-weight: 700;
   border-radius: var(--radius-sm);
-  border: 1px solid transparent;
+  border: 2px solid var(--border-color);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.1s ease;
   font-family: var(--font-sans);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-primary {
   background-color: var(--accent-primary);
-  color: white;
-  box-shadow: 0 1px 3px rgba(49, 46, 129, 0.2);
+  color: var(--text-primary);
 }
 
 .btn-primary:hover {
   background-color: var(--accent-primary-hover);
-  box-shadow: 0 4px 10px rgba(49, 46, 129, 0.2);
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px var(--border-color);
+}
+
+.btn-primary:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px 0px var(--border-color);
 }
 
 .btn-secondary {
   background-color: white;
   color: var(--text-primary);
-  border-color: var(--border-color);
-  box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover {
   background-color: var(--bg-tertiary);
-  border-color: #CBD5E1;
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px var(--border-color);
+}
+
+.btn-secondary:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px 0px var(--border-color);
 }
 
 .btn-danger {
   background-color: var(--danger);
-  color: white;
+  color: var(--text-primary);
 }
 
 .btn-danger:hover {
-  background-color: #DC2626;
+  background-color: #ff8b8b;
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px var(--border-color);
+}
+
+.btn-danger:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px 0px var(--border-color);
 }
 
 .btn-sm {
   padding: 6px 12px;
   font-size: 12px;
+  border-width: 1.5px;
+  box-shadow: 2px 2px 0px var(--border-color);
+}
+
+.btn-sm:hover {
+  transform: translate(0.5px, 0.5px);
+  box-shadow: 1.5px 1.5px 0px var(--border-color);
 }
 
 .btn-full {
@@ -503,7 +529,7 @@ body {
 .table-container {
   width: 100%;
   overflow-x: auto;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   background-color: var(--bg-secondary);
   box-shadow: var(--shadow-sm);
@@ -517,18 +543,18 @@ body {
 
 .table-el th {
   padding: 12px 18px;
-  background-color: #F8FAFC;
-  border-bottom: 1px solid var(--border-color);
+  background-color: #ffd6a5; /* Pastel yellow header */
+  border-bottom: 2px solid var(--border-color);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .table-el td {
   padding: 14px 18px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
   font-size: 13.5px;
   color: var(--text-primary);
 }
@@ -538,7 +564,7 @@ body {
 }
 
 .table-el tr:hover td {
-  background-color: #F8FAFC;
+  background-color: var(--bg-tertiary);
 }
 
 /* Minimal Outlined Badges (Stripe design) */
@@ -547,15 +573,16 @@ body {
   align-items: center;
   padding: 3px 8px;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 700;
   border-radius: 4px;
+  border: 1.5px solid var(--border-color);
 }
 
-.badge-success { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
-.badge-warning { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
-.badge-danger { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
-.badge-info { background: #DBEAFE; color: #1E40AF; border: 1px solid #BFDBFE; }
-.badge-muted { background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; }
+.badge-success { background: #caffbf; color: #1a1a1a; }
+.badge-warning { background: #ffd6a5; color: #1a1a1a; }
+.badge-danger { background: #ffadad; color: #1a1a1a; }
+.badge-info { background: #9bf6ff; color: #1a1a1a; }
+.badge-muted { background: #f5f2eb; color: #1a1a1a; }
 
 /* Dynamic Dials & Progress bars */
 .progress-container {
@@ -807,8 +834,8 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(15, 23, 42, 0.3);
-  backdrop-filter: blur(6px);
+  background-color: rgba(26, 26, 26, 0.4);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -818,7 +845,7 @@ body {
 
 .modal-content {
   background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   width: 100%;
   max-width: 600px;
@@ -829,7 +856,8 @@ body {
 
 .modal-header {
   padding: 20px 24px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+  background-color: #bdb2ff; /* Pastel lavender header */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -843,7 +871,7 @@ body {
 
 .modal-footer {
   padding: 16px 24px;
-  border-top: 1px solid var(--border-color);
+  border-top: 2px solid var(--border-color);
   background-color: var(--bg-tertiary);
   display: flex;
   justify-content: flex-end;

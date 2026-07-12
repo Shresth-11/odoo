@@ -1,5 +1,6 @@
 import { Router, Response } from "express";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import db from "../config/db";
 import { authenticateJWT, requireRole, AuthenticatedRequest } from "../middleware/auth";
 import { logActivity } from "../utils/activity";
@@ -25,6 +26,15 @@ const roleUpdateSchema = z.object({
 
 const statusUpdateSchema = z.object({
   status: z.enum(["Active", "Inactive", "Suspended"]),
+});
+
+const employeeCreateSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters long"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+  department_id: z.number().optional().nullable(),
+  role: z.enum(["Admin", "AssetManager", "DepartmentHead", "Employee"]),
+  status: z.enum(["Active", "Inactive", "Suspended"]).optional().default("Active"),
 });
 
 // ================= DEPARTMENTS =================
@@ -432,6 +442,64 @@ router.put(
       }
       console.error("Update employee status error:", error);
       return res.status(500).json({ error: "Internal server error updating status" });
+    }
+  }
+);
+
+// POST create employee (Admin only)
+router.post(
+  "/employees",
+  authenticateJWT,
+  requireRole(["Admin"]),
+  async (req: AuthenticatedRequest, res) => {
+    try {
+      const data = employeeCreateSchema.parse(req.body);
+
+      // Check if email already exists
+      const existing = await db("employees").where({ email: data.email.toLowerCase() }).first();
+      if (existing) {
+        return res.status(400).json({ error: "An employee with this email already exists" });
+      }
+
+      // Verify department if provided
+      if (data.department_id) {
+        const dept = await db("departments").where({ id: data.department_id }).first();
+        if (!dept) {
+          return res.status(400).json({ error: "Specified department does not exist" });
+        }
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(data.password, 10);
+
+      const [newEmployee] = await db("employees")
+        .insert({
+          name: data.name,
+          email: data.email.toLowerCase(),
+          password_hash: hashedPassword,
+          department_id: data.department_id || null,
+          role: data.role,
+          status: data.status || "Active",
+        })
+        .returning(["id", "name", "email", "role", "status", "department_id"]);
+
+      await logActivity(
+        req.user!.id,
+        `Created employee account for ${newEmployee.name} (${newEmployee.email}) with role ${newEmployee.role}`,
+        "Employee",
+        newEmployee.id
+      );
+
+      return res.status(201).json({
+        message: "Employee registered successfully",
+        employee: newEmployee,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
+      console.error("Create employee error:", error);
+      return res.status(500).json({ error: "Internal server error creating employee" });
     }
   }
 );
