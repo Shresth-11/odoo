@@ -11,6 +11,8 @@ import {
   Clock,
   History,
   Activity,
+  X,
+  Sparkles,
 } from "lucide-react";
 
 interface KPIs {
@@ -48,6 +50,7 @@ export const Dashboard: React.FC = () => {
   const [overdueItems, setOverdueItems] = useState<OverdueItem[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(true);
 
   const fetchDashboardData = async () => {
     try {
@@ -72,6 +75,117 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="animate-fade">
+      {/* Interactive Onboarding */}
+      {showOnboarding && (
+        <div
+          className="card animate-fade"
+          style={{
+            marginBottom: "24px",
+            background: "linear-gradient(135deg, rgba(91, 92, 235, 0.03) 0%, rgba(91, 92, 235, 0.01) 100%)",
+            border: "1px solid rgba(91, 92, 235, 0.15)",
+            position: "relative",
+            padding: "20px",
+          }}
+        >
+          <button
+            style={{
+              position: "absolute",
+              right: "16px",
+              top: "16px",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--text-secondary)",
+            }}
+            onClick={() => setShowOnboarding(false)}
+          >
+            <X size={18} />
+          </button>
+          
+          <div style={{ display: "flex", gap: "20px", alignItems: "flex-start", flexWrap: "wrap", justifyContent: "space-between" }}>
+            <div style={{ flex: 1, minWidth: "280px" }}>
+              <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "8px", margin: 0 }}>
+                <Sparkles size={18} color="var(--accent-primary)" />
+                Welcome to AssetFlow: Your Onboarding Checklist
+              </h3>
+              <p style={{ fontSize: "12.5px", color: "var(--text-secondary)", marginTop: "6px", marginBottom: "16px", maxWidth: "600px", lineHeight: "1.4" }}>
+                Follow these interactive steps to get familiar with our enterprise resources and checkout processes.
+              </p>
+              
+              {/* Checklist steps */}
+              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                {[
+                  { title: "Explore Catalog", desc: "Browse items", done: true },
+                  { title: "Book a Resource", desc: "Schedule a room", done: false },
+                  { title: "Review Profile", desc: "Verify custody", done: false },
+                ].map((step, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: "10px 14px",
+                      backgroundColor: "var(--bg-secondary)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: "var(--radius-sm)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      flex: "1 1 170px",
+                      minWidth: "160px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "16px",
+                        height: "16px",
+                        borderRadius: "50%",
+                        border: `2px solid ${step.done ? "var(--success)" : "var(--border-color)"}`,
+                        backgroundColor: step.done ? "var(--success)" : "transparent",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        fontSize: "9px",
+                        fontWeight: "bold"
+                      }}
+                    >
+                      {step.done && "✓"}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "11.5px", fontWeight: 600, color: "var(--text-primary)" }}>{step.title}</div>
+                      <div style={{ fontSize: "10px", color: "var(--text-secondary)" }}>{step.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Circular Progress Ring */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingRight: "10px", alignSelf: "center" }}>
+              <div style={{ position: "relative", width: "64px", height: "64px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="64" height="64" viewBox="0 0 36 36">
+                  <path
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    fill="none"
+                    stroke="var(--border-color)"
+                    strokeWidth="3"
+                  />
+                  <path
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    fill="none"
+                    stroke="var(--accent-primary)"
+                    strokeWidth="3"
+                    strokeDasharray="33, 100"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div style={{ position: "absolute", fontSize: "12px", fontWeight: 700, color: "var(--text-primary)" }}>33%</div>
+              </div>
+              <span style={{ fontSize: "10px", fontWeight: 600, color: "var(--text-secondary)", marginTop: "6px" }}>1 of 3 complete</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 1. KPI Panel */}
       <div className="grid-cols-3">
         <div className="card">
