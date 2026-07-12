@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Local databases & Portable binaries
+pg_data/
+pgsql/
+*.log
+
+# Environments & Configs
+.env
+.env.production
+.gemini/
+.agents/
+
+# Builds & Outputs
+dist/
+build/
+frontend/dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+postgresql.zip

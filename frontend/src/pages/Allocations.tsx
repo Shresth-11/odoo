@@ -1,0 +1,486 @@
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
+import { Share2, Plus, Calendar, RotateCcw, AlertTriangle, ArrowRightLeft } from "lucide-react";
+
+interface Allocation {
+  id: number;
+  asset_id: number;
+  asset_name: string;
+  asset_tag: string;
+  employee_id: number | null;
+  employee_name: string | null;
+  employee_email: string | null;
+  department_id: number | null;
+  department_name: string | null;
+  allocated_date: string;
+  expected_return_date: string;
+  actual_return_date: string | null;
+  condition_notes: string | null;
+  status: "Active" | "Returned" | "Overdue";
+}
+
+interface Transfer {
+  id: number;
+  asset_id: number;
+  asset_name: string;
+  asset_tag: string;
+  from_employee_id: number;
+  from_employee_name: string;
+  to_employee_id: number;
+  to_employee_name: string;
+  to_employee_email: string;
+  status: "Requested" | "Approved" | "Rejected" | "Completed";
+  created_at: string;
+}
+
+interface Asset {
+  id: number;
+  name: string;
+  asset_tag: string;
+  status: string;
+}
+
+interface Employee {
+  id: number;
+  name: string;
+  email: string;
+}
+
+interface Department {
+  id: number;
+  name: string;
+}
+
+export const Allocations: React.FC = () => {
+  const { apiFetch, user } = useAuth();
+  const { showToast } = useToast();
+  const [allocations, setAllocations] = useState<Allocation[]>([]);
+  const [transfers, setTransfers] = useState<Transfer[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Forms State
+  const [targetType, setTargetType] = useState<"employee" | "department">("employee");
+  const [assetId, setAssetId] = useState<number | "">("");
+  const [employeeId, setEmployeeId] = useState<number | "">("");
+  const [departmentId, setDepartmentId] = useState<number | "">("");
+  const [expectedReturnDate, setExpectedReturnDate] = useState("");
+  const [conditionNotes, setConditionNotes] = useState("");
+
+  const [transferAssetId, setTransferAssetId] = useState<number | "">("");
+  const [transferToEmployeeId, setTransferToEmployeeId] = useState<number | "">("");
+
+  // Return Modal State
+  const [returningAlloc, setReturningAlloc] = useState<Allocation | null>(null);
+  const [returnNotes, setReturnNotes] = useState("");
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const allocData = await apiFetch("/allocations");
+      setAllocations(allocData.allocations);
+
+      const transData = await apiFetch("/allocations/transfers");
+      setTransfers(transData.transfers);
+
+      // Fetch assets, employees, departments for dropdowns
+      const assetsData = await apiFetch("/assets");
+      setAssets(assetsData.assets);
+
+      const empsData = await apiFetch("/org/employees");
+      setEmployees(empsData.employees);
+
+      const deptsData = await apiFetch("/org/departments");
+      setDepartments(deptsData.departments);
+    } catch (err: any) {
+      showToast("error", err.message || "Failed to load allocation data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleAllocateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        asset_id: Number(assetId),
+        employee_id: targetType === "employee" ? Number(employeeId) : null,
+        department_id: targetType === "department" ? Number(departmentId) : null,
+        expected_return_date: expectedReturnDate,
+        condition_notes: conditionNotes,
+      };
+
+      await apiFetch("/allocations", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+
+      showToast("success", "Asset allocated successfully!");
+      setAssetId("");
+      setEmployeeId("");
+      setDepartmentId("");
+      setExpectedReturnDate("");
+      setConditionNotes("");
+      fetchData();
+    } catch (err: any) {
+      // Highlight exact error message returned by backend
+      showToast("error", err.message);
+    }
+  };
+
+  const handleReturnSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!returningAlloc) return;
+    try {
+      await apiFetch(`/allocations/${returningAlloc.id}/return`, {
+        method: "POST",
+        body: JSON.stringify({ condition_notes: returnNotes }),
+      });
+
+      showToast("success", "Asset return processed successfully");
+      setReturningAlloc(null);
+      setReturnNotes("");
+      fetchData();
+    } catch (err: any) {
+      showToast("error", err.message);
+    }
+  };
+
+  const handleTransferSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await apiFetch("/allocations/transfers", {
+        method: "POST",
+        body: JSON.stringify({
+          asset_id: Number(transferAssetId),
+          to_employee_id: Number(transferToEmployeeId),
+        }),
+      });
+
+      showToast("success", "Transfer request submitted successfully");
+      setTransferAssetId("");
+      setTransferToEmployeeId("");
+      fetchData();
+    } catch (err: any) {
+      showToast("error", err.message);
+    }
+  };
+
+  const handleApproveTransfer = async (id: number) => {
+    try {
+      await apiFetch(`/allocations/transfers/${id}/approve`, { method: "POST" });
+      showToast("success", "Asset transfer approved and recorded");
+      fetchData();
+    } catch (err: any) {
+      showToast("error", err.message);
+    }
+  };
+
+  const handleRejectTransfer = async (id: number) => {
+    try {
+      await apiFetch(`/allocations/transfers/${id}/reject`, { method: "POST" });
+      showToast("success", "Transfer request rejected");
+      fetchData();
+    } catch (err: any) {
+      showToast("error", err.message);
+    }
+  };
+
+  if (loading) {
+    return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh", fontSize: "16px", color: "var(--text-secondary)" }}>Loading allocations...</div>;
+  }
+
+  return (
+    <div className="animate-fade">
+      {/* 1. Allocation & Transfer Requests Forms grid */}
+      <div className="grid-cols-2">
+        {/* Allocation Form (Asset Managers Only) */}
+        {user?.role === "AssetManager" ? (
+          <div className="card">
+            <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <Plus size={18} color="var(--accent-primary)" />
+              Allocate Physical Asset
+            </h3>
+            <form onSubmit={handleAllocateSubmit}>
+              <div className="form-group">
+                <label className="form-label">Asset to Allocate</label>
+                <select className="form-control" value={assetId} onChange={(e) => setAssetId(e.target.value ? Number(e.target.value) : "")} required>
+                  <option value="">Select Available Asset</option>
+                  {assets
+                    .filter((a) => a.status === "Available")
+                    .map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name} ({a.asset_tag})
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Custodian Target Type</label>
+                <div style={{ display: "flex", gap: "16px" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", cursor: "pointer" }}>
+                    <input type="radio" name="targetType" checked={targetType === "employee"} onChange={() => setTargetType("employee")} style={{ accentColor: "var(--accent-primary)" }} />
+                    Individual Employee
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", cursor: "pointer" }}>
+                    <input type="radio" name="targetType" checked={targetType === "department"} onChange={() => setTargetType("department")} style={{ accentColor: "var(--accent-primary)" }} />
+                    Department Office
+                  </label>
+                </div>
+              </div>
+
+              {targetType === "employee" ? (
+                <div className="form-group">
+                  <label className="form-label">Target Employee</label>
+                  <select className="form-control" value={employeeId} onChange={(e) => setEmployeeId(e.target.value ? Number(e.target.value) : "")} required>
+                    <option value="">Select Employee</option>
+                    {employees.map((e) => (
+                      <option key={e.id} value={e.id}>{e.name} ({e.email})</option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div className="form-group">
+                  <label className="form-label">Target Department</label>
+                  <select className="form-control" value={departmentId} onChange={(e) => setDepartmentId(e.target.value ? Number(e.target.value) : "")} required>
+                    <option value="">Select Department</option>
+                    {departments.map((d) => (
+                      <option key={d.id} value={d.id}>{d.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="form-group">
+                <label className="form-label">Expected Return Date</label>
+                <input type="date" className="form-control" value={expectedReturnDate} onChange={(e) => setExpectedReturnDate(e.target.value)} required />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Allocation Condition Notes</label>
+                <textarea className="form-control" rows={2} placeholder="Physical state comments..." value={conditionNotes} onChange={(e) => setConditionNotes(e.target.value)} />
+              </div>
+
+              <button type="submit" className="btn btn-primary">Allocate Asset</button>
+            </form>
+          </div>
+        ) : (
+          <div className="card" style={{ display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+            <div>
+              <AlertTriangle size={32} color="var(--warning)" style={{ marginBottom: "12px" }} />
+              <h3 style={{ fontSize: "15px", fontWeight: 600 }}>Allocation Lock</h3>
+              <p style={{ fontSize: "13px", color: "var(--text-secondary)", maxWidth: "280px", marginTop: "4px" }}>
+                Only designated **Asset Managers** can issue physical assets to staff or offices.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Transfer Request Form (Everyone) */}
+        <div className="card">
+          <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+            <ArrowRightLeft size={18} color="var(--accent-primary)" />
+            Raise Transfer Request
+          </h3>
+          <form onSubmit={handleTransferSubmit}>
+            <div className="form-group">
+              <label className="form-label">Asset to Transfer</label>
+              <select className="form-control" value={transferAssetId} onChange={(e) => setTransferAssetId(e.target.value ? Number(e.target.value) : "")} required>
+                <option value="">Select Allocated Asset</option>
+                {assets
+                  .filter((a) => a.status === "Allocated")
+                  .map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name} ({a.asset_tag})
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Transfer Target Employee</label>
+              <select className="form-control" value={transferToEmployeeId} onChange={(e) => setTransferToEmployeeId(e.target.value ? Number(e.target.value) : "")} required>
+                <option value="">Select Recipient</option>
+                {employees.map((e) => (
+                  <option key={e.id} value={e.id}>{e.name} ({e.email})</option>
+                ))}
+              </select>
+            </div>
+
+            <button type="submit" className="btn btn-secondary">Submit Transfer Request</button>
+          </form>
+        </div>
+      </div>
+
+      {/* 2. Active Allocations Directory */}
+      <div className="card" style={{ marginBottom: "32px" }}>
+        <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>Active custody Directory</h3>
+        <div className="table-container">
+          <table className="table-el">
+            <thead>
+              <tr>
+                <th>Asset Tag</th>
+                <th>Asset Name</th>
+                <th>Custodian Target</th>
+                <th>Allocated Date</th>
+                <th>Expected Return</th>
+                <th>Status</th>
+                <th>Notes</th>
+                {user?.role === "AssetManager" && <th>Action</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {allocations
+                .filter((a) => a.status === "Active" || a.status === "Overdue")
+                .map((alloc) => (
+                  <tr key={alloc.id}>
+                    <td style={{ fontWeight: 600, color: "var(--accent-primary)" }}>{alloc.asset_tag}</td>
+                    <td style={{ fontWeight: 600 }}>{alloc.asset_name}</td>
+                    <td>
+                      {alloc.employee_name ? (
+                        <div>
+                          <strong>{alloc.employee_name}</strong>
+                          <span style={{ display: "block", fontSize: "11px", color: "var(--text-muted)" }}>{alloc.employee_email}</span>
+                        </div>
+                      ) : (
+                        <strong>Dept Office: {alloc.department_name}</strong>
+                      )}
+                    </td>
+                    <td>{new Date(alloc.allocated_date).toLocaleDateString()}</td>
+                    <td>{new Date(alloc.expected_return_date).toLocaleDateString()}</td>
+                    <td>
+                      <span className={`badge ${alloc.status === "Overdue" ? "badge-danger" : "badge-info"}`}>{alloc.status}</span>
+                    </td>
+                    <td style={{ fontSize: "12px", color: "var(--text-muted)" }}>{alloc.condition_notes || "—"}</td>
+                    {user?.role === "AssetManager" && (
+                      <td>
+                        <button className="btn btn-secondary btn-sm" onClick={() => setReturningAlloc(alloc)}>
+                          <RotateCcw size={12} style={{ marginRight: "4px" }} /> Return
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* 3. Pending Transfer Requests Directory */}
+      <div className="card">
+        <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>Relocation Transfer Requests</h3>
+        <div className="table-container">
+          <table className="table-el">
+            <thead>
+              <tr>
+                <th>Asset Tag</th>
+                <th>Asset Name</th>
+                <th>From Custodian</th>
+                <th>To Recipient</th>
+                <th>Raised Date</th>
+                <th>Status</th>
+                {user?.role === "AssetManager" && <th>Actions</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {transfers.map((trans) => (
+                <tr key={trans.id}>
+                  <td style={{ fontWeight: 600, color: "var(--accent-primary)" }}>{trans.asset_tag}</td>
+                  <td style={{ fontWeight: 600 }}>{trans.asset_name}</td>
+                  <td>{trans.from_employee_name}</td>
+                  <td>
+                    <div>
+                      <strong>{trans.to_employee_name}</strong>
+                      <span style={{ display: "block", fontSize: "11px", color: "var(--text-muted)" }}>{trans.to_employee_email}</span>
+                    </div>
+                  </td>
+                  <td>{new Date(trans.created_at).toLocaleDateString()}</td>
+                  <td>
+                    <span
+                      className={`badge ${
+                        trans.status === "Completed"
+                          ? "badge-success"
+                          : trans.status === "Rejected"
+                          ? "badge-danger"
+                          : "badge-warning"
+                      }`}
+                    >
+                      {trans.status}
+                    </span>
+                  </td>
+                  {user?.role === "AssetManager" && (
+                    <td>
+                      {trans.status === "Requested" ? (
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          <button className="btn btn-primary btn-sm" onClick={() => handleApproveTransfer(trans.id)}>
+                            Approve
+                          </button>
+                          <button className="btn btn-danger btn-sm" onClick={() => handleRejectTransfer(trans.id)}>
+                            Reject
+                          </button>
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>Closed</span>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* 4. RETURN CONFIRMATION MODAL */}
+      {returningAlloc && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 style={{ fontSize: "16px", fontWeight: 700 }}>Process Asset Return</h3>
+              <button
+                style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: "20px" }}
+                onClick={() => setReturningAlloc(null)}
+              >
+                ×
+              </button>
+            </div>
+            <form onSubmit={handleReturnSubmit}>
+              <div className="modal-body">
+                <p style={{ fontSize: "14px", marginBottom: "16px" }}>
+                  Please verify the state of asset **{returningAlloc.asset_name} ({returningAlloc.asset_tag})** before confirming its return.
+                </p>
+                <div className="form-group">
+                  <label className="form-label">Return Condition Notes</label>
+                  <textarea
+                    className="form-control"
+                    rows={4}
+                    placeholder="Describe condition details (e.g. Scratches on lid, missing power supply, perfect condition)..."
+                    value={returnNotes}
+                    onChange={(e) => setReturnNotes(e.target.value)}
+                    required
+                  ></textarea>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setReturningAlloc(null)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Confirm Return
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
