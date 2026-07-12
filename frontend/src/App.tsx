@@ -19,6 +19,7 @@ import { Audits } from "./pages/Audits";
 import { Reports } from "./pages/Reports";
 import { OrgSetup } from "./pages/OrgSetup";
 import { ActivityLogs } from "./pages/ActivityLogs";
+import { Notifications } from "./pages/Notifications";
 
 // Protected Route Guard Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: string[] }> = ({
@@ -80,6 +81,7 @@ const AppLayout: React.FC = () => {
               }
             />
             <Route path="/activity-logs" element={<ActivityLogs />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

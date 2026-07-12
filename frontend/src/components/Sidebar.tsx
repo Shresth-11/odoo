@@ -10,9 +10,8 @@ import {
   ClipboardCheck,
   BarChart3,
   Settings,
-  History,
+  Bell,
   LogOut,
-  UserCheck,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -27,14 +26,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 
   const menuItems = [
     { path: "/", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
-    { path: "/assets", label: "Assets Directory", icon: Box, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
-    { path: "/allocations", label: "Allocations & Transfers", icon: Share2, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
+    { path: "/org-setup", label: "Organization setup", icon: Settings, roles: ["Admin"] },
+    { path: "/assets", label: "Assets", icon: Box, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
+    { path: "/allocations", label: "Allocation & Transfer", icon: Share2, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
     { path: "/bookings", label: "Resource Booking", icon: CalendarDays, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
     { path: "/maintenance", label: "Maintenance", icon: Wrench, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
-    { path: "/audits", label: "Asset Audit", icon: ClipboardCheck, roles: ["Admin", "Employee"] }, // Admin creates, Employee audits if assigned
-    { path: "/reports", label: "Reports & Analytics", icon: BarChart3, roles: ["Admin", "AssetManager", "DepartmentHead"] },
-    { path: "/org-setup", label: "Organization Setup", icon: Settings, roles: ["Admin"] },
-    { path: "/activity-logs", label: "Activity Logs", icon: History, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
+    { path: "/audits", label: "Audit", icon: ClipboardCheck, roles: ["Admin", "Employee"] },
+    { path: "/reports", label: "Reports", icon: BarChart3, roles: ["Admin", "AssetManager", "DepartmentHead"] },
+    { path: "/notifications", label: "Notifications", icon: Bell, roles: ["Admin", "AssetManager", "DepartmentHead", "Employee"] },
   ];
 
   // Filter menu based on user role
