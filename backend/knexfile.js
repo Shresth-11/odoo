@@ -1,8 +1,4 @@
-import type { Knex } from "knex";
-import dotenv from "dotenv";
-import path from "path";
-
-dotenv.config({ path: path.join(__dirname, ".env") });
+const path = require("path");
 
 const connection = process.env.DATABASE_URL
   ? {
@@ -17,18 +13,18 @@ const connection = process.env.DATABASE_URL
       database: process.env.DB_NAME || "assetflow",
     };
 
-const config: { [key: string]: Knex.Config } = {
+module.exports = {
   development: {
     client: "pg",
     connection,
     acquireConnectionTimeout: 60000,
     migrations: {
-      directory: path.join(__dirname, "src/db/migrations"),
-      extension: "ts",
+      directory: path.join(__dirname, "dist/db/migrations"),
+      extension: "js",
     },
     seeds: {
-      directory: path.join(__dirname, "src/db/seeds"),
-      extension: "ts",
+      directory: path.join(__dirname, "dist/db/seeds"),
+      extension: "js",
     },
   },
   production: {
@@ -36,14 +32,12 @@ const config: { [key: string]: Knex.Config } = {
     connection,
     acquireConnectionTimeout: 60000,
     migrations: {
-      directory: path.join(__dirname, "src/db/migrations"),
-      extension: "ts",
+      directory: path.join(__dirname, "dist/db/migrations"),
+      extension: "js",
     },
     seeds: {
-      directory: path.join(__dirname, "src/db/seeds"),
-      extension: "ts",
+      directory: path.join(__dirname, "dist/db/seeds"),
+      extension: "js",
     },
   },
 };
-
-export default config;
