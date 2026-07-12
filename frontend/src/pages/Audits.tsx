@@ -350,126 +350,62 @@ export const Audits: React.FC = () => {
           </div>
         </div>
       ) : (
-        /* Cycle Auditing / Summary Report View */
+        /* Cycle Auditing / Summary Report View (Screen 8) */
         <div className="animate-fade">
-          {/* Header Controls */}
+          {/* Back button */}
+          <button className="btn btn-secondary btn-sm" onClick={() => setActiveCycle(null)} style={{ marginBottom: "16px" }}>
+            ← Back to List
+          </button>
+
+          {/* Header Panel (Brown Card) */}
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              backgroundColor: "#3b2e2a",
+              border: "2px solid var(--border-color)",
+              borderRadius: "var(--radius-sm)",
+              padding: "20px",
+              color: "#ffffff",
               marginBottom: "24px",
-              flexWrap: "wrap",
-              gap: "16px",
+              boxShadow: "var(--shadow-sm)"
             }}
           >
-            <div>
-              <button className="btn btn-secondary btn-sm" onClick={() => setActiveCycle(null)} style={{ marginBottom: "8px" }}>
-                ← Back to List
-              </button>
-              <h2 style={{ fontSize: "20px", fontWeight: 700 }}>
-                Audit Cycle #{activeCycle.id} Configuration
-              </h2>
-              <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-                Scope: {activeCycle.department_name ? `Department ${activeCycle.department_name}` : "Global Inventory"}
-                {activeCycle.scope_location && ` • Location ${activeCycle.scope_location}`}
-              </span>
-            </div>
-
-            {isAdmin && activeCycle.status === "Open" && (
-              <button className="btn btn-danger" onClick={handleCloseCycle}>
-                <CheckCircle2 size={16} /> Close & Lock Cycle
-              </button>
-            )}
+            <h3 style={{ fontSize: "16px", fontWeight: 700, margin: 0, color: "#ffffff" }}>
+              Q3 audit: {activeCycle.department_name ? `${activeCycle.department_name} dept` : "Global Inventory"} -{" "}
+              {new Date(activeCycle.start_date).toLocaleDateString("en-US", { day: "numeric", month: "short" })} to{" "}
+              {new Date(activeCycle.end_date).toLocaleDateString("en-US", { day: "numeric", month: "short" })}
+            </h3>
+            <p style={{ fontSize: "12.5px", color: "rgba(255, 255, 255, 0.8)", marginTop: "6px", fontFamily: "var(--font-mono)" }}>
+              Auditors: {activeCycle.auditors.map((a) => a.name).join(", ")}
+            </p>
           </div>
 
-          {/* Horizontal Step progress tracker */}
-          <div className="step-tracker animate-fade">
-            <div className="step-node active">
-              <div className="step-circle">1</div>
-              <span>Initialized</span>
-            </div>
-            <div className="step-line" style={{ backgroundColor: activeCycle.status === "Closed" ? "var(--accent-primary)" : "var(--border-color)" }} />
-            <div className={`step-node ${activeCycle.status === "Open" ? "active" : ""}`}>
-              <div className="step-circle">2</div>
-              <span>Auditing Open</span>
-            </div>
-            <div className="step-line" style={{ backgroundColor: activeCycle.status === "Closed" ? "var(--accent-primary)" : "var(--border-color)" }} />
-            <div className={`step-node ${activeCycle.status === "Closed" ? "active" : ""}`}>
-              <div className="step-circle">3</div>
-              <span>Closed & Verified</span>
-            </div>
-          </div>
-
-          {/* Report summary card */}
-          {discrepancyReport && (
-            <div className="card" style={{ marginBottom: "24px", display: "flex", flexWrap: "wrap", gap: "24px", justifyContent: "space-between", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-sm)" }}>
-              <div>
-                <span className="card-title" style={{ fontSize: "12px" }}>Audited Rate</span>
-                <div style={{ fontSize: "24px", fontWeight: 700, marginTop: "4px" }}>
-                  {discrepancyReport.total_scoped > 0
-                    ? Math.round((discrepancyReport.total_audited / discrepancyReport.total_scoped) * 100)
-                    : 0}
-                  %
-                </div>
-                <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-                  {discrepancyReport.total_audited} of {discrepancyReport.total_scoped} assets check-in
-                </span>
-              </div>
-              <div>
-                <span className="card-title" style={{ fontSize: "12px", color: "var(--success)" }}>Verified</span>
-                <div style={{ fontSize: "24px", fontWeight: 700, color: "var(--success)", marginTop: "4px" }}>
-                  {discrepancyReport.verified_count}
-                </div>
-              </div>
-              <div>
-                <span className="card-title" style={{ fontSize: "12px", color: "var(--danger)" }}>Missing Discrepancy</span>
-                <div style={{ fontSize: "24px", fontWeight: 700, color: "var(--danger)", marginTop: "4px" }}>
-                  {discrepancyReport.missing_count}
-                </div>
-                <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>Auto-Lost flag on close</span>
-              </div>
-              <div>
-                <span className="card-title" style={{ fontSize: "12px", color: "var(--warning)" }}>Damaged Discrepancy</span>
-                <div style={{ fontSize: "24px", fontWeight: 700, color: "var(--warning)", marginTop: "4px" }}>
-                  {discrepancyReport.damaged_count}
-                </div>
-                <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>Auto-Maintenance trigger</span>
-              </div>
-              <div>
-                <span className="card-title" style={{ fontSize: "12px" }}>Un-audited</span>
-                <div style={{ fontSize: "24px", fontWeight: 700, color: "var(--text-muted)", marginTop: "4px" }}>
-                  {discrepancyReport.unaudited_count}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Two Pane split: Left shows scoped assets list, Right shows single auditing card */}
+          {/* Two Pane split: Left checklist table, Right verify tool */}
           <div className="grid-cols-3">
-            {/* Scoped Assets List */}
             <div className="card" style={{ gridColumn: "span 2" }}>
-              <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>Scoped Assets Checklist</h3>
+              <h3 style={{ fontSize: "15px", fontWeight: 700, marginBottom: "16px", color: "var(--text-primary)" }}>Audit Checklist</h3>
+              
               <div className="table-container">
                 <table className="table-el">
                   <thead>
                     <tr>
                       <th>Asset</th>
-                      <th>Location</th>
-                      <th>Audit Status</th>
-                      <th>Actions</th>
+                      <th>Expected location</th>
+                      <th>Verification</th>
                     </tr>
                   </thead>
                   <tbody>
                     {scopedAssets.map((asset) => {
                       const resItem = submittedResults[asset.id];
                       return (
-                        <tr key={asset.id}>
-                          <td>
-                            <div style={{ fontWeight: 600 }}>{asset.name}</div>
-                            <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>{asset.asset_tag}</span>
+                        <tr
+                          key={asset.id}
+                          style={{ cursor: activeCycle.status === "Open" ? "pointer" : "default" }}
+                          onClick={() => activeCycle.status === "Open" && setAuditingAsset(asset)}
+                        >
+                          <td style={{ fontWeight: 600 }}>
+                            {asset.asset_tag} {asset.name}
                           </td>
-                          <td>{asset.location}</td>
+                          <td style={{ fontFamily: "var(--font-mono)" }}>{asset.location}</td>
                           <td>
                             {resItem ? (
                               <span
@@ -477,23 +413,14 @@ export const Audits: React.FC = () => {
                                   resItem.result === "Verified"
                                     ? "badge-success"
                                     : resItem.result === "Damaged"
-                                    ? "badge-warning"
+                                    ? "badge-muted"
                                     : "badge-danger"
                                 }`}
                               >
                                 {resItem.result}
                               </span>
                             ) : (
-                              <span className="badge badge-muted">Un-audited</span>
-                            )}
-                          </td>
-                          <td>
-                            {activeCycle.status === "Open" ? (
-                              <button className="btn btn-secondary btn-sm" onClick={() => setAuditingAsset(asset)}>
-                                Record Result
-                              </button>
-                            ) : (
-                              <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>Locked</span>
+                              <span className="badge badge-muted" style={{ backgroundColor: "#ffffff" }}>Un-audited</span>
                             )}
                           </td>
                         </tr>
@@ -502,13 +429,41 @@ export const Audits: React.FC = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Discrepancy Banner */}
+              {discrepancyReport && (discrepancyReport.missing_count + discrepancyReport.damaged_count > 0) && (
+                <div
+                  style={{
+                    backgroundColor: "#ca8a04",
+                    border: "2px solid var(--border-color)",
+                    borderRadius: "var(--radius-sm)",
+                    padding: "12px 16px",
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    fontSize: "12.5px",
+                    marginTop: "20px",
+                    boxShadow: "var(--shadow-sm)"
+                  }}
+                >
+                  {discrepancyReport.missing_count + discrepancyReport.damaged_count} assets flagged - discrepancy report generated automatically
+                </div>
+              )}
+
+              {/* Close Audit Button */}
+              {isAdmin && activeCycle.status === "Open" && (
+                <div style={{ marginTop: "24px" }}>
+                  <button className="btn btn-secondary" onClick={handleCloseCycle} style={{ border: "2px solid var(--border-color)" }}>
+                    Close audit cycle
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Audit record card */}
+            {/* Audit Outcome Logger */}
             <div className="card" style={{ gridColumn: "span 1" }}>
               {auditingAsset ? (
                 <div>
-                  <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>
+                  <h3 style={{ fontSize: "15px", fontWeight: 700, marginBottom: "16px" }}>
                     Verify Asset {auditingAsset.asset_tag}
                   </h3>
                   <form onSubmit={handleAuditOutcomeSubmit}>
@@ -524,9 +479,9 @@ export const Audits: React.FC = () => {
                         value={auditOutcome}
                         onChange={(e) => setAuditOutcome(e.target.value as any)}
                       >
-                        <option value="Verified">Verified & Correct</option>
-                        <option value="Missing">Missing / Lost</option>
-                        <option value="Damaged">Damaged / Broken</option>
+                        <option value="Verified">Verified</option>
+                        <option value="Missing">Missing</option>
+                        <option value="Damaged">Damaged</option>
                       </select>
                     </div>
 
@@ -534,8 +489,8 @@ export const Audits: React.FC = () => {
                       <label className="form-label">Outcome Notes / Remarks</label>
                       <textarea
                         className="form-control"
-                        rows={4}
-                        placeholder="Add details, notes, serial number checks..."
+                        rows={3}
+                        placeholder="Remarks..."
                         value={auditNotes}
                         onChange={(e) => setAuditNotes(e.target.value)}
                       ></textarea>
@@ -550,9 +505,9 @@ export const Audits: React.FC = () => {
                   </form>
                 </div>
               ) : (
-                <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
+                <div style={{ padding: "40px", textAlign: "center", color: "var(--text-secondary)" }}>
                   <FileText size={32} style={{ marginBottom: "12px", opacity: 0.5 }} />
-                  <div>Select an asset from the checklist to log its current outcome.</div>
+                  <div>Select an asset from the checklist to log its current verification outcome.</div>
                 </div>
               )}
             </div>

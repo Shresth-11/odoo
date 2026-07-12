@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { Wrench, Plus, Check, X, ShieldAlert, UserCheck, Play, CheckCircle } from "lucide-react";
+import { Wrench, Plus, Check, X, ShieldAlert, UserCheck, Play, CheckCircle, Sparkles } from "lucide-react";
 
 interface MaintenanceRequest {
   id: number;
@@ -25,6 +25,7 @@ interface Asset {
   id: number;
   name: string;
   asset_tag: string;
+  status: string;
 }
 
 export const Maintenance: React.FC = () => {
@@ -89,7 +90,7 @@ export const Maintenance: React.FC = () => {
   const handleApprove = async (id: number) => {
     try {
       await apiFetch(`/maintenance/${id}/approve`, { method: "POST" });
-      showToast("success", "Ticket Approved. Relocated to Scheduled column.");
+      showToast("success", "Ticket Approved and moved to Scheduled.");
       fetchData();
     } catch (err: any) {
       showToast("error", err.message);
@@ -114,13 +115,30 @@ export const Maintenance: React.FC = () => {
         method: "POST",
         body: JSON.stringify({
           technician_name: techName,
+          status: "TechnicianAssigned",
+        }),
+      });
+
+      showToast("success", "Technician assigned. Ticket moved to Technician Assigned column.");
+      setAssigningReqId(null);
+      setTechName("");
+      fetchData();
+    } catch (err: any) {
+      showToast("error", err.message);
+    }
+  };
+
+  const handleStartWork = async (req: MaintenanceRequest) => {
+    try {
+      await apiFetch(`/maintenance/${req.id}/assign`, {
+        method: "POST",
+        body: JSON.stringify({
+          technician_name: req.technician_name,
           status: "InProgress",
         }),
       });
 
-      showToast("success", "Technician assigned. Ticket moved to In Progress.");
-      setAssigningReqId(null);
-      setTechName("");
+      showToast("success", "Work started. Ticket moved to In Progress column.");
       fetchData();
     } catch (err: any) {
       showToast("error", err.message);
@@ -143,34 +161,37 @@ export const Maintenance: React.FC = () => {
 
   const isManager = user?.role === "AssetManager" || user?.role === "Admin";
 
-  // Filter requests into Kanban columns
-  const getColTickets = (statusGroup: "Pending" | "Scheduled" | "InProgress" | "Resolved") => {
+  // Filter requests into Kanban columns (Screen 7 columns: Pending, Approved, TechnicianAssigned, InProgress, Resolved)
+  const getColTickets = (colId: "Pending" | "Approved" | "TechnicianAssigned" | "InProgress" | "Resolved") => {
     return requests.filter((r) => {
-      if (statusGroup === "Pending") return r.status === "Pending";
-      if (statusGroup === "Scheduled") return r.status === "Approved" || r.status === "TechnicianAssigned";
-      if (statusGroup === "InProgress") return r.status === "InProgress";
-      return r.status === "Resolved" || r.status === "Rejected";
+      if (colId === "Pending") return r.status === "Pending";
+      if (colId === "Approved") return r.status === "Approved";
+      if (colId === "TechnicianAssigned") return r.status === "TechnicianAssigned";
+      if (colId === "InProgress") return r.status === "InProgress";
+      return r.status === "Resolved" || r.status === "Rejected"; // group rejected in resolved column to keep board tidy
     });
   };
 
   const columns = [
-    { id: "Pending" as const, title: "Pending Review", count: getColTickets("Pending").length },
-    { id: "Scheduled" as const, title: "Scheduled / Approved", count: getColTickets("Scheduled").length },
-    { id: "InProgress" as const, title: "In Progress", count: getColTickets("InProgress").length },
-    { id: "Resolved" as const, title: "Resolved / Closed", count: getColTickets("Resolved").length },
+    { id: "Pending" as const, title: "Pending", count: getColTickets("Pending").length },
+    { id: "Approved" as const, title: "Approved", count: getColTickets("Approved").length },
+    { id: "TechnicianAssigned" as const, title: "Technician assigned", count: getColTickets("TechnicianAssigned").length },
+    { id: "InProgress" as const, title: "in progress", count: getColTickets("InProgress").length },
+    { id: "Resolved" as const, title: "Resolved", count: getColTickets("Resolved").length },
   ];
 
   return (
     <div className="animate-fade" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Board Header Controls */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
         <div>
-          <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-            Kanban dashboard of physical asset breakdowns, priority tickets, and repair schedules.
-          </span>
+          <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>Incident workflow</h3>
+          <p style={{ fontSize: "12.5px", color: "var(--text-secondary)", marginTop: "2px" }}>
+            Kanban workflow board of asset breakdowns, priority checklists, and repair schedules.
+          </p>
         </div>
         <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
-          <Plus size={16} /> File Bug / Incident Ticket
+          <Plus size={16} /> File incident ticket
         </button>
       </div>
 
@@ -178,32 +199,34 @@ export const Maintenance: React.FC = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: "16px",
+          gridTemplateColumns: "repeat(5, 1fr)",
+          gap: "14px",
           overflowX: "auto",
           alignItems: "flex-start",
-          minHeight: "65vh",
+          minHeight: "60vh",
+          paddingBottom: "20px"
         }}
       >
         {columns.map((col) => (
           <div
             key={col.id}
             style={{
-              backgroundColor: "rgba(241, 245, 249, 0.6)",
-              border: "1px solid var(--border-color)",
-              borderRadius: "var(--radius-lg)",
-              padding: "16px",
+              backgroundColor: "rgba(255, 255, 255, 0.4)",
+              border: "2px solid var(--border-color)",
+              borderRadius: "var(--radius-sm)",
+              padding: "14px",
               display: "flex",
               flexDirection: "column",
               gap: "12px",
-              maxHeight: "75vh",
-              overflowY: "auto",
+              minHeight: "50vh",
+              maxHeight: "70vh",
+              overflowY: "auto"
             }}
           >
             {/* Column Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h4 style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--text-primary)" }}>{col.title}</h4>
-              <span className="badge badge-muted" style={{ padding: "2px 6px", fontSize: "11px", fontWeight: 700 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px solid var(--border-color)", paddingBottom: "6px" }}>
+              <h4 style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-primary)", textTransform: "capitalize" }}>{col.title}</h4>
+              <span className="badge badge-muted" style={{ padding: "1px 6px", fontSize: "10.5px" }}>
                 {col.count}
               </span>
             </div>
@@ -211,134 +234,109 @@ export const Maintenance: React.FC = () => {
             {/* Column Cards */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {getColTickets(col.id).length === 0 ? (
-                <div style={{ textAlign: "center", padding: "24px", color: "var(--text-muted)", fontSize: "12px", border: "1px dashed var(--border-color)", borderRadius: "var(--radius-sm)" }}>
-                  No tickets
+                <div style={{ textAlign: "center", padding: "16px", color: "var(--text-muted)", fontSize: "11.5px", fontStyle: "italic" }}>
+                  Empty column
                 </div>
               ) : (
-                getColTickets(col.id).map((req) => (
-                  <div
-                    key={req.id}
-                    className="card"
-                    style={{
-                      padding: "14px",
-                      borderRadius: "var(--radius-sm)",
-                      borderLeft: `3px solid ${
-                        req.priority === "Critical"
-                          ? "var(--danger)"
-                          : req.priority === "High"
-                          ? "var(--warning)"
-                          : "var(--accent-primary)"
-                      }`,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "8px",
-                      boxShadow: "var(--shadow-sm)",
-                    }}
-                  >
-                    {/* Priority & Tag */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-primary)" }}>
+                getColTickets(col.id).map((req) => {
+                  const isResolved = req.status === "Resolved";
+                  const formattedDate = new Date(req.created_at).toLocaleDateString("en-US", { day: "numeric", month: "short" });
+
+                  return (
+                    <div
+                      key={req.id}
+                      style={{
+                        padding: "14px",
+                        borderRadius: "var(--radius-sm)",
+                        border: isResolved ? "2px solid #14532d" : "2px solid var(--border-color)",
+                        backgroundColor: isResolved ? "#14532d" : "var(--bg-secondary)",
+                        color: isResolved ? "#ffffff" : "var(--text-primary)",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "6px",
+                        boxShadow: isResolved ? "none" : "var(--shadow-sm)"
+                      }}
+                    >
+                      <div style={{ fontWeight: 700, fontSize: "12.5px", fontFamily: "var(--font-mono)", color: isResolved ? "#bbf2d6" : "var(--accent-primary)" }}>
                         {req.asset_tag}
-                      </span>
-                      <span
-                        className={`badge ${
-                          req.priority === "Critical"
-                            ? "badge-danger"
-                            : req.priority === "High"
-                            ? "badge-warning"
-                            : "badge-muted"
-                        }`}
-                        style={{ fontSize: "9px", padding: "1px 4px" }}
-                      >
-                        {req.priority}
-                      </span>
-                    </div>
-
-                    {/* Ticket Title / Info */}
-                    <strong style={{ fontSize: "13.5px", color: "var(--text-primary)" }}>{req.asset_name}</strong>
-                    
-                    <p style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: 1.4, wordBreak: "break-word" }}>
-                      {req.issue_description}
-                    </p>
-
-                    {/* Step-based workflow progress tracker */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "6px 0", padding: "4px 0" }}>
-                      {["Pending", "Approved", "InProgress", "Resolved"].map((stepStatus, sIdx) => {
-                        const statuses = ["Pending", "Approved", "InProgress", "Resolved"];
-                        const isRejected = req.status === "Rejected";
-                        const currentStatus = req.status === "TechnicianAssigned" ? "InProgress" : req.status;
-                        const currentIdx = statuses.indexOf(currentStatus);
-                        const isActive = isRejected ? (stepStatus === "Pending") : (sIdx <= currentIdx);
-                        return (
-                          <React.Fragment key={stepStatus}>
-                            <div 
-                              style={{
-                                width: "8px",
-                                height: "8px",
-                                borderRadius: "50%",
-                                backgroundColor: isRejected && stepStatus === "Approved" ? "var(--danger)" : (isActive ? "var(--accent-primary)" : "var(--border-color)"),
-                                border: isActive ? "2px solid rgba(49, 46, 129, 0.15)" : "none",
-                              }} 
-                              title={`${stepStatus} state`} 
-                            />
-                            {sIdx < 3 && <div style={{
-                              flex: 1,
-                              height: "2px",
-                              backgroundColor: !isRejected && isActive && sIdx < currentIdx ? "var(--accent-primary)" : "var(--border-color)",
-                              margin: "0 4px"
-                            }} />}
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-
-                    <div style={{ fontSize: "10px", color: "var(--text-muted)", borderTop: "1px solid var(--border-color)", paddingTop: "6px", marginTop: "2px" }}>
-                      Opened by: {req.raised_by_name} <br />
-                      {req.technician_name ? `Tech: ${req.technician_name}` : "Unassigned"}
-                    </div>
-
-                    {/* Action Panel based on state */}
-                    {isManager && (
-                      <div style={{ display: "flex", gap: "6px", marginTop: "6px", borderTop: "1px solid var(--border-color)", paddingTop: "8px" }}>
-                        {req.status === "Pending" && (
-                          <>
-                            <button className="btn btn-primary btn-sm" style={{ padding: "4px 8px", fontSize: "11px", flex: 1 }} onClick={() => handleApprove(req.id)}>
-                              Approve
-                            </button>
-                            <button className="btn btn-danger btn-sm" style={{ padding: "4px" }} onClick={() => handleReject(req.id)}>
-                              <X size={12} />
-                            </button>
-                          </>
-                        )}
-                        {(req.status === "Approved" || req.status === "TechnicianAssigned") && (
-                          <button className="btn btn-secondary btn-sm" style={{ padding: "4px 8px", fontSize: "11px", flex: 1 }} onClick={() => setAssigningReqId(req.id)}>
-                            <UserCheck size={12} style={{ marginRight: "4px" }} /> Assign Tech
-                          </button>
-                        )}
-                        {req.status === "InProgress" && (
-                          <button className="btn btn-primary btn-sm" style={{ padding: "4px 8px", fontSize: "11px", flex: 1, backgroundColor: "var(--success)" }} onClick={() => handleResolve(req.id)}>
-                            <CheckCircle size={12} style={{ marginRight: "4px" }} /> Resolve Ticket
-                          </button>
-                        )}
-                        {req.status === "Resolved" && (
-                          <span style={{ fontSize: "11px", color: "var(--text-muted)", fontStyle: "italic" }}>Closed Ledger</span>
-                        )}
                       </div>
-                    )}
-                  </div>
-                ))
+                      
+                      <div style={{ fontSize: "12px", lineHeight: 1.3, wordBreak: "break-word" }}>
+                        <span style={{ fontWeight: 600 }}>{req.asset_name}</span> {req.issue_description}
+                      </div>
+
+                      {/* Display status details */}
+                      {req.status === "TechnicianAssigned" && (
+                        <div style={{ fontSize: "11px", color: "var(--text-secondary)", fontFamily: "var(--font-mono)", marginTop: "4px" }}>
+                          tech: {req.technician_name}
+                        </div>
+                      )}
+
+                      {req.status === "InProgress" && (
+                        <div style={{ fontSize: "11px", color: "var(--text-secondary)", fontFamily: "var(--font-mono)", marginTop: "4px" }}>
+                          parts ordered (in progress)
+                        </div>
+                      )}
+
+                      {isResolved && (
+                        <div style={{ fontSize: "11px", color: "#caffbf", fontFamily: "var(--font-mono)", marginTop: "4px" }}>
+                          resolved {formattedDate}
+                        </div>
+                      )}
+
+                      {/* Action buttons */}
+                      {isManager && !isResolved && (
+                        <div style={{ display: "flex", gap: "4px", marginTop: "6px", borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: "8px" }}>
+                          {req.status === "Pending" && (
+                            <>
+                              <button className="btn btn-secondary btn-sm" style={{ padding: "4px 8px", fontSize: "10.5px", flex: 1 }} onClick={() => handleApprove(req.id)}>
+                                Approve
+                              </button>
+                              <button className="btn btn-danger btn-sm" style={{ padding: "4px" }} onClick={() => handleReject(req.id)}>
+                                <X size={12} />
+                              </button>
+                            </>
+                          )}
+                          {req.status === "Approved" && (
+                            <button className="btn btn-secondary btn-sm" style={{ padding: "4px 8px", fontSize: "10.5px", flex: 1 }} onClick={() => setAssigningReqId(req.id)}>
+                              <UserCheck size={12} style={{ marginRight: "4px" }} /> Assign Tech
+                            </button>
+                          )}
+                          {req.status === "TechnicianAssigned" && (
+                            <button className="btn btn-secondary btn-sm" style={{ padding: "4px 8px", fontSize: "10.5px", flex: 1, backgroundColor: "#fffbeb" }} onClick={() => handleStartWork(req)}>
+                              <Play size={12} style={{ marginRight: "4px" }} /> Start Work
+                            </button>
+                          )}
+                          {req.status === "InProgress" && (
+                            <button className="btn btn-primary btn-sm" style={{ padding: "4px 8px", fontSize: "10.5px", flex: 1, backgroundColor: "var(--success)" }} onClick={() => handleResolve(req.id)}>
+                              <CheckCircle size={12} style={{ marginRight: "4px" }} /> Resolve
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
         ))}
       </div>
 
+      {/* Disclaimer Message bottom footer matching Screen 7 */}
+      <div style={{ padding: "12px 16px", backgroundColor: "#f5f2eb", border: "2px solid var(--border-color)", borderRadius: "var(--radius-sm)", fontSize: "12.5px", color: "var(--text-secondary)", marginTop: "16px" }}>
+        Approving a card moves the asset to under maintenance, resolving return it to available
+      </div>
+
       {/* Raised Modal Popup */}
       {showAddModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 style={{ fontSize: "16px", fontWeight: 700 }}>File Maintenance incident</h3>
+              <h3 style={{ fontSize: "16px", fontWeight: 700 }}>
+                <Sparkles size={16} color="var(--accent-primary)" style={{ display: "inline-block", marginRight: "6px", verticalAlign: "middle" }} />
+                File Maintenance incident
+              </h3>
               <button
                 style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: "20px" }}
                 onClick={() => setShowAddModal(false)}
@@ -349,17 +347,33 @@ export const Maintenance: React.FC = () => {
             <form onSubmit={handleRaiseSubmit}>
               <div className="modal-body">
                 <div className="form-group">
-                  <label className="form-label">Asset Tag / Resource</label>
+                  <label className="form-label">Asset to Service</label>
                   <select className="form-control" value={assetId} onChange={(e) => setAssetId(e.target.value ? Number(e.target.value) : "")} required>
-                    <option value="">Select Asset</option>
-                    {assets.map((a) => (
-                      <option key={a.id} value={a.id}>{a.name} ({a.asset_tag})</option>
-                    ))}
+                    <option value="">Select Asset...</option>
+                    {assets
+                      .filter((a) => !["Retired", "Disposed", "Lost"].includes(a.status))
+                      .map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.name} ({a.asset_tag})
+                        </option>
+                      ))}
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Priority Level</label>
+                  <label className="form-label">Incident Description</label>
+                  <textarea
+                    className="form-control"
+                    rows={4}
+                    placeholder="Provide details about the issue or physical damages..."
+                    value={desc}
+                    onChange={(e) => setDesc(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Priority</label>
                   <select className="form-control" value={priority} onChange={(e) => setPriority(e.target.value as any)}>
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
@@ -367,25 +381,13 @@ export const Maintenance: React.FC = () => {
                     <option value="Critical">Critical</option>
                   </select>
                 </div>
-
-                <div className="form-group">
-                  <label className="form-label">Malfunction / Damage Symptoms</label>
-                  <textarea
-                    className="form-control"
-                    rows={4}
-                    placeholder="Provide details on physical issues, error tags, or broken structures..."
-                    value={desc}
-                    onChange={(e) => setDesc(e.target.value)}
-                    required
-                  />
-                </div>
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  Submit Incident
+                  File Ticket
                 </button>
               </div>
             </form>
@@ -393,12 +395,12 @@ export const Maintenance: React.FC = () => {
         </div>
       )}
 
-      {/* Technician Assignment */}
+      {/* Technician Assignment Modal */}
       {assigningReqId && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="modal-overlay" onClick={() => setAssigningReqId(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 style={{ fontSize: "16px", fontWeight: 700 }}>Assign Field Technician</h3>
+              <h3 style={{ fontSize: "16px", fontWeight: 700 }}>Assign Repair Technician</h3>
               <button
                 style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: "20px" }}
                 onClick={() => setAssigningReqId(null)}
@@ -413,7 +415,7 @@ export const Maintenance: React.FC = () => {
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="e.g. Robert Martin, Alex Repairman"
+                    placeholder="e.g. R verma, John Doe"
                     value={techName}
                     onChange={(e) => setTechName(e.target.value)}
                     required
@@ -425,7 +427,7 @@ export const Maintenance: React.FC = () => {
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  Start Incident Repair
+                  Assign Technician
                 </button>
               </div>
             </form>
