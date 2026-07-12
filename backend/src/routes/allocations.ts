@@ -44,7 +44,7 @@ router.get("/", authenticateJWT, async (req: AuthenticatedRequest, res) => {
 });
 
 // POST allocate an asset (Asset Manager only)
-router.post("/", authenticateJWT, requireRole(["AssetManager"]), async (req: AuthenticatedRequest, res) => {
+router.post("/", authenticateJWT, requireRole(["AssetManager", "Admin"]), async (req: AuthenticatedRequest, res) => {
   try {
     const data = allocateSchema.parse(req.body);
     const allocation = await AllocationService.allocateAsset(data, { id: req.user!.id, name: req.user!.name });
@@ -65,7 +65,7 @@ router.post("/", authenticateJWT, requireRole(["AssetManager"]), async (req: Aut
 });
 
 // POST return allocated asset (Asset Manager only)
-router.post("/:id/return", authenticateJWT, requireRole(["AssetManager"]), async (req: AuthenticatedRequest, res) => {
+router.post("/:id/return", authenticateJWT, requireRole(["AssetManager", "Admin"]), async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
     const data = returnSchema.parse(req.body);
@@ -129,7 +129,7 @@ router.post("/transfers", authenticateJWT, async (req: AuthenticatedRequest, res
 });
 
 // POST approve transfer request (Asset Manager only)
-router.post("/transfers/:id/approve", authenticateJWT, requireRole(["AssetManager"]), async (req: AuthenticatedRequest, res) => {
+router.post("/transfers/:id/approve", authenticateJWT, requireRole(["AssetManager", "Admin"]), async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
     const transfer = await AllocationService.approveTransfer(id, req.user!.id);
@@ -147,7 +147,7 @@ router.post("/transfers/:id/approve", authenticateJWT, requireRole(["AssetManage
 });
 
 // POST reject transfer request (Asset Manager only)
-router.post("/transfers/:id/reject", authenticateJWT, requireRole(["AssetManager"]), async (req: AuthenticatedRequest, res) => {
+router.post("/transfers/:id/reject", authenticateJWT, requireRole(["AssetManager", "Admin"]), async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
     const transfer = await AllocationService.rejectTransfer(id, req.user!.id);

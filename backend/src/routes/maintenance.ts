@@ -54,7 +54,7 @@ router.post("/", authenticateJWT, async (req: AuthenticatedRequest, res) => {
 });
 
 // POST approve request (Asset Manager only) - flips asset status to UnderMaintenance
-router.post("/:id/approve", authenticateJWT, requireRole(["AssetManager"]), async (req: AuthenticatedRequest, res) => {
+router.post("/:id/approve", authenticateJWT, requireRole(["AssetManager", "Admin"]), async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
     const request = await MaintenanceService.approveRequest(id, req.user!.id);
@@ -72,7 +72,7 @@ router.post("/:id/approve", authenticateJWT, requireRole(["AssetManager"]), asyn
 });
 
 // POST assign technician (Asset Manager only)
-router.post("/:id/assign", authenticateJWT, requireRole(["AssetManager"]), async (req: AuthenticatedRequest, res) => {
+router.post("/:id/assign", authenticateJWT, requireRole(["AssetManager", "Admin"]), async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
     const data = assignTechSchema.parse(req.body);
@@ -94,7 +94,7 @@ router.post("/:id/assign", authenticateJWT, requireRole(["AssetManager"]), async
 });
 
 // POST resolve request (Asset Manager only) - flips asset status back to Available
-router.post("/:id/resolve", authenticateJWT, requireRole(["AssetManager"]), async (req: AuthenticatedRequest, res) => {
+router.post("/:id/resolve", authenticateJWT, requireRole(["AssetManager", "Admin"]), async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
     const request = await MaintenanceService.resolveRequest(id, req.user!.id);
@@ -112,7 +112,7 @@ router.post("/:id/resolve", authenticateJWT, requireRole(["AssetManager"]), asyn
 });
 
 // POST reject request (Asset Manager only)
-router.post("/:id/reject", authenticateJWT, requireRole(["AssetManager"]), async (req: AuthenticatedRequest, res) => {
+router.post("/:id/reject", authenticateJWT, requireRole(["AssetManager", "Admin"]), async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
     const request = await MaintenanceService.rejectRequest(id, req.user!.id);

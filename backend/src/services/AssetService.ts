@@ -109,7 +109,8 @@ export class AssetService {
 
     let assetTag = "";
     return db.transaction(async (trx) => {
-      const [{ nextval }] = await trx.raw("SELECT nextval('seq_asset_tags')");
+      const rawResult = await trx.raw("SELECT nextval('seq_asset_tags')");
+      const nextval = rawResult.rows[0].nextval;
       assetTag = `AF-${String(nextval).padStart(4, "0")}`;
 
       const [newAsset] = await trx("assets")
