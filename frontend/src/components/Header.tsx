@@ -165,7 +165,7 @@ export const Header: React.FC = () => {
 
               <div style={{ maxHeight: "300px", overflowY: "auto" }}>
                 {notifications.length === 0 ? (
-                  <div style={{ padding: "32px 20px", textAlignment: "center", color: "var(--text-muted)", fontSize: "14px", textAlign: "center" }}>
+                  <div style={{ padding: "32px 20px", color: "var(--text-muted)", fontSize: "14px", textAlign: "center" }}>
                     No notifications yet.
                   </div>
                 ) : (
