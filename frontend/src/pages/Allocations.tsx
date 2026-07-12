@@ -278,71 +278,76 @@ export const Allocations: React.FC = () => {
                   .filter((a) => a.asset_id === assetId)
                   .sort((a, b) => new Date(b.allocated_date).getTime() - new Date(a.allocated_date).getTime());
                 
+                const getHistoryText = (alloc: Allocation) => {
+                  const dateStr = new Date(alloc.allocated_date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                  const targetName = alloc.employee_name || alloc.department_name || "Custodian";
+                  const deptInfo = alloc.department_name ? ` - ${alloc.department_name}` : "";
+                  
+                  if (alloc.status === "Active" || alloc.status === "Overdue") {
+                    return `${dateStr} - Allocated to ${targetName}${deptInfo}`;
+                  } else {
+                    const returnDateStr = alloc.actual_return_date ? new Date(alloc.actual_return_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+                    return `${returnDateStr || dateStr} - Returned by ${targetName} - condition ${alloc.condition_notes || "good"}`;
+                  }
+                };
+
                 return (
                   <div className="animate-fade">
                     <div style={{
                       backgroundColor: "#FEF2F2",
-                      border: "1px solid #FCA5A5",
+                      border: "2px solid #EF4444",
                       color: "#991B1B",
-                      padding: "12px 16px",
-                      borderRadius: "var(--radius-md)",
+                      padding: "14px",
+                      borderRadius: "var(--radius-sm)",
                       marginBottom: "20px",
-                      fontSize: "13px",
-                      fontWeight: 500,
-                      lineHeight: "1.5"
+                      fontSize: "12.5px"
                     }}>
-                      Already allocated to <strong>{holder}</strong>. Direct allocation is blocked — submit a Transfer request below.
+                      <div style={{ fontWeight: 700 }}>Already Allocated to {holder}</div>
+                      <div style={{ marginTop: "4px" }}>Direct re-allocation is blocked - submit a transfer request below</div>
                     </div>
 
                     <form onSubmit={(e) => {
                       e.preventDefault();
                       triggerTransferRequest(selectedAsset.id);
                     }}>
-                      <div className="form-group">
-                        <label className="form-label">From (Current Custodian)</label>
-                        <input type="text" className="form-control" value={holder} disabled style={{ backgroundColor: "#F9FAFB", cursor: "not-allowed" }} />
+                      <h4 style={{ fontSize: "14px", fontWeight: 700, marginBottom: "12px", color: "var(--text-primary)" }}>Transfer Request</h4>
+                      
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label className="form-label">From</label>
+                          <input type="text" className="form-control" value={holder} disabled style={{ backgroundColor: "#F9FAFB", cursor: "not-allowed" }} />
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">To</label>
+                          <select className="form-control" value={transferToEmployeeId} onChange={(e) => setTransferToEmployeeId(e.target.value ? Number(e.target.value) : "")} required>
+                            <option value="">Select Employee...</option>
+                            {employees.map((e) => (
+                              <option key={e.id} value={e.id}>{e.name} ({e.email})</option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">To (New Custodian Recipient)</label>
-                        <select className="form-control" value={transferToEmployeeId} onChange={(e) => setTransferToEmployeeId(e.target.value ? Number(e.target.value) : "")} required>
-                          <option value="">Select Target Employee</option>
-                          {employees.map((e) => (
-                            <option key={e.id} value={e.id}>{e.name} ({e.email})</option>
-                          ))}
-                        </select>
+                        <label className="form-label">Reason</label>
+                        <textarea className="form-control" rows={3} placeholder="Reason..." value={transferReason} onChange={(e) => setTransferReason(e.target.value)} />
                       </div>
 
-                      <div className="form-group">
-                        <label className="form-label">Reason for Transfer</label>
-                        <textarea className="form-control" rows={3} placeholder="Provide business justification for custody transfer..." value={transferReason} onChange={(e) => setTransferReason(e.target.value)} />
-                      </div>
-
-                      <button type="submit" className="btn btn-primary" style={{ backgroundColor: "var(--danger)", border: "none" }}>
-                        Submit Transfer Request
+                      <button type="submit" className="btn btn-primary" style={{ backgroundColor: "#15803d", borderColor: "#15803d", color: "#ffffff", fontWeight: 700 }}>
+                        Submit Request
                       </button>
                     </form>
 
-                    <div style={{ marginTop: "24px", paddingTop: "20px", borderTop: "1px solid var(--border-color)" }}>
-                      <h4 style={{ fontSize: "14px", fontWeight: 700, marginBottom: "16px", color: "var(--text-primary)" }}>Allocation Custody History</h4>
+                    <div style={{ marginTop: "24px", paddingTop: "20px", borderTop: "2px solid var(--border-color)" }}>
+                      <h4 style={{ fontSize: "14px", fontWeight: 700, marginBottom: "12px", color: "var(--text-primary)" }}>Allocation history</h4>
                       {selectedAssetAllocations.length === 0 ? (
-                        <div style={{ fontSize: "12.5px", color: "var(--text-muted)", fontStyle: "italic" }}>No prior history logs.</div>
+                        <div style={{ fontSize: "12.5px", color: "var(--text-secondary)", fontStyle: "italic" }}>No prior history logs.</div>
                       ) : (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px", color: "var(--text-primary)" }}>
                           {selectedAssetAllocations.map((alloc) => (
-                            <div key={alloc.id} style={{ display: "flex", gap: "10px", fontSize: "12.5px" }}>
-                              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: alloc.status === "Active" ? "var(--accent-primary)" : "var(--border-color)" }} />
-                                <div style={{ flex: 1, width: "2px", backgroundColor: "var(--border-color)", margin: "4px 0" }} />
-                              </div>
-                              <div>
-                                <div style={{ fontWeight: 600 }}>{alloc.status === "Active" ? "Currently Held" : "Returned"} by {alloc.employee_name || alloc.department_name}</div>
-                                <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-                                  Allocated: {new Date(alloc.allocated_date).toLocaleDateString()} 
-                                  {alloc.actual_return_date && ` • Returned: ${new Date(alloc.actual_return_date).toLocaleDateString()}`}
-                                </div>
-                                {alloc.condition_notes && <div style={{ fontSize: "11px", color: "var(--text-secondary)", fontStyle: "italic", marginTop: "2px" }}>Notes: {alloc.condition_notes}</div>}
-                              </div>
+                            <div key={alloc.id} style={{ fontFamily: "var(--font-mono)" }}>
+                              {getHistoryText(alloc)}
                             </div>
                           ))}
                         </div>

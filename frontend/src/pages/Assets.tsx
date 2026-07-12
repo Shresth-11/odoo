@@ -179,40 +179,38 @@ export const Assets: React.FC = () => {
   return (
     <div className="animate-fade">
       {/* 1. Filtering & Registration Action Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: "16px",
-          marginBottom: "24px",
-          flexWrap: "wrap",
-        }}
-      >
-        {/* Search */}
-        <div style={{ position: "relative", flex: 1, minWidth: "260px" }}>
-          <Search size={18} style={{ position: "absolute", left: "14px", top: "14px", color: "var(--text-muted)" }} />
-          <input
-            type="text"
-            className="form-control"
-            style={{ paddingLeft: "42px" }}
-            placeholder="Search by tag, name, serial, or location..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "24px" }}>
+        <div style={{ display: "flex", gap: "10px", width: "100%", flexWrap: "wrap" }}>
+          <div style={{ position: "relative", flex: 1, minWidth: "260px" }}>
+            <Search size={18} style={{ position: "absolute", left: "14px", top: "14px", color: "var(--text-muted)" }} />
+            <input
+              type="text"
+              className="form-control"
+              style={{ paddingLeft: "42px" }}
+              placeholder="Search by tag, serial, or QR code..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          {(user?.role === "Admin" || user?.role === "AssetManager") && (
+            <button className="btn btn-primary" onClick={() => setShowRegModal(true)}>
+              <Plus size={16} /> Register Asset
+            </button>
+          )}
         </div>
 
-        {/* Filters */}
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
-          <select className="form-control" style={{ width: "160px" }} value={selectedCat} onChange={(e) => setSelectedCat(e.target.value)}>
-            <option value="">All Categories</option>
+        {/* Filters Row */}
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <select className="form-control" style={{ width: "160px", fontWeight: 600 }} value={selectedCat} onChange={(e) => setSelectedCat(e.target.value)}>
+            <option value="">Category</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
 
-          <select className="form-control" style={{ width: "140px" }} value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
-            <option value="">All Statuses</option>
+          <select className="form-control" style={{ width: "140px", fontWeight: 600 }} value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
+            <option value="">Status</option>
             <option value="Available">Available</option>
             <option value="Allocated">Allocated</option>
             <option value="Reserved">Reserved</option>
@@ -222,17 +220,12 @@ export const Assets: React.FC = () => {
             <option value="Disposed">Disposed</option>
           </select>
 
-          <select className="form-control" style={{ width: "120px" }} value={selectedBookable} onChange={(e) => setSelectedBookable(e.target.value)}>
-            <option value="">Bookability</option>
-            <option value="true">Bookable</option>
-            <option value="false">Non-Bookable</option>
+          <select className="form-control" style={{ width: "160px", fontWeight: 600 }} value={selectedLocation} onChange={(e) => setSelectedLocation(e.target.value)}>
+            <option value="">Department</option>
+            <option value="bengaluru">bengaluru</option>
+            <option value="HQ Floor 2">HQ Floor 2</option>
+            <option value="Warehouse">Warehouse</option>
           </select>
-
-          {user?.role === "AssetManager" && (
-            <button className="btn btn-primary" onClick={() => setShowRegModal(true)}>
-              <Plus size={16} /> Register Asset
-            </button>
-          )}
         </div>
       </div>
 
@@ -249,56 +242,36 @@ export const Assets: React.FC = () => {
           <table className="table-el">
             <thead>
               <tr>
-                <th>Asset Tag</th>
-                <th>Asset Name</th>
+                <th>Tag</th>
+                <th>Name</th>
                 <th>Category</th>
-                <th>Condition</th>
-                <th>Location</th>
                 <th>Status</th>
-                <th>Bookable</th>
+                <th>Location</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {assets.map((asset) => (
-                <tr key={asset.id}>
-                  <td
-                    style={{ fontWeight: 600, color: "var(--accent-primary)", cursor: "pointer" }}
-                    onClick={() => handleOpenProfile(asset)}
-                    title="View Full Profile Drawer"
-                  >
+                <tr key={asset.id} style={{ cursor: "pointer" }} onClick={() => handleOpenProfile(asset)}>
+                  <td style={{ fontWeight: 600, color: "var(--accent-primary)" }}>
                     {asset.asset_tag}
                   </td>
                   <td>
-                    <div style={{ fontWeight: 600, cursor: "pointer" }} onClick={() => handleOpenProfile(asset)}>
-                      {asset.name}
-                    </div>
+                    <div style={{ fontWeight: 600 }}>{asset.name}</div>
                     <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>S/N: {asset.serial_number || "None"}</span>
                   </td>
                   <td>{asset.category_name}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        asset.condition === "New" || asset.condition === "Good"
-                          ? "badge-success"
-                          : asset.condition === "Fair"
-                          ? "badge-warning"
-                          : "badge-danger"
-                      }`}
-                    >
-                      {asset.condition}
-                    </span>
-                  </td>
-                  <td>{asset.location}</td>
                   <td>{getStatusBadge(asset.status)}</td>
+                  <td>{asset.location}</td>
                   <td>
-                    <span className={`badge ${asset.is_bookable ? "badge-info" : "badge-muted"}`} style={{ borderRadius: "12px", padding: "3px 10px" }}>
-                      {asset.is_bookable ? "Yes" : "No"}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="btn btn-secondary btn-sm" onClick={() => handleOpenProfile(asset)}>
-                      Profile Drawer
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenProfile(asset);
+                      }}
+                    >
+                      Details
                     </button>
                   </td>
                 </tr>
