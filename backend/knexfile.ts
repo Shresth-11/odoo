@@ -14,6 +14,7 @@ const config: { [key: string]: Knex.Config } = {
       password: process.env.DB_PASSWORD || "postgres",
       database: process.env.DB_NAME || "assetflow",
     },
+    acquireConnectionTimeout: 60000,
     migrations: {
       directory: path.join(__dirname, "src/db/migrations"),
       extension: "ts",
@@ -38,6 +39,7 @@ const config: { [key: string]: Knex.Config } = {
           database: process.env.DB_NAME,
           ssl: { rejectUnauthorized: false },
         },
+    acquireConnectionTimeout: 60000,
     migrations: {
       directory: path.join(__dirname, "src/db/migrations"),
       extension: "ts",

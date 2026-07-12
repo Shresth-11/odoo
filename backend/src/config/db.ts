@@ -27,6 +27,7 @@ const connection = environment === "production"
 const db = knex({
   client: "pg",
   connection,
+  acquireConnectionTimeout: 60000,
 });
 
 export default db;
