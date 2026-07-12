@@ -85,7 +85,11 @@ router.post(
         return res.status(400).json({ error: error.message });
       }
       console.error("Register asset route error:", error);
-      return res.status(500).json({ error: "Internal server error registering asset" });
+      return res.status(500).json({
+        error: "Internal server error registering asset",
+        message: error.message,
+        stack: error.stack
+      });
     }
   }
 );
