@@ -33,9 +33,10 @@ export const Login: React.FC = () => {
     e.preventDefault();
     setLoading(true);
 
+    const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
     try {
       if (formState === "login") {
-        const response = await fetch("http://localhost:3000/api/auth/login", {
+        const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
@@ -47,7 +48,7 @@ export const Login: React.FC = () => {
         login(data.token, data.user);
         showToast("success", `Welcome back, ${data.user.name}!`);
       } else if (formState === "signup") {
-        const response = await fetch("http://localhost:3000/api/auth/signup", {
+        const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
