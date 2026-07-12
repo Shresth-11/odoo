@@ -108,15 +108,26 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="login-page" style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", padding: "20px" }}>
-      <div className="card animate-fade" style={{ width: "100%", maxWidth: "420px", padding: "40px" }}>
+    <div className="login-page" style={{ display: "flex", flexDirection: "column", minHeight: "100vh", alignItems: "center", justifyContent: "center", padding: "40px 20px", backgroundColor: "var(--bg-primary)" }}>
+      
+      {/* Bold Hero Headline - tasteLabs-inspired */}
+      <div className="animate-fade" style={{ textAlign: "center", marginBottom: "32px", animationDelay: "100ms" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "12px" }}>
+          <div className="logo-icon" style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "var(--accent-primary)", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "14px" }}>AF</div>
+          <span style={{ fontSize: "20px", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.5px" }}>AssetFlow</span>
+        </div>
+        <h1 style={{ fontSize: "36px", fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-1px", lineHeight: "1.2", margin: "0 0 8px 0" }}>
+          The operating system for your enterprise assets.
+        </h1>
+        <p style={{ fontSize: "15px", color: "var(--text-secondary)", maxWidth: "460px", margin: "0 auto", lineHeight: "1.5" }}>
+          Track inventory, schedule shared resources, and manage maintenance tickets under a single, unified workspace.
+        </p>
+      </div>
+
+      <div className="card animate-fade" style={{ width: "100%", maxWidth: "440px", padding: "36px", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-lg)", border: "1px solid var(--border-color)", backgroundColor: "#FFFFFF" }}>
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "16px" }}>
-            <div className="logo-icon">AF</div>
-            <span className="logo-text" style={{ color: "var(--text-primary)" }}>AssetFlow</span>
-          </div>
-          <h3 style={{ fontSize: "20px", fontWeight: 700, color: "var(--text-primary)" }}>
+        <div style={{ textAlign: "center", marginBottom: "28px" }}>
+          <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--text-primary)" }}>
             {formState === "login" && "Sign in to account"}
             {formState === "signup" && "Create staff account"}
             {formState === "forgot" && "Forgot Password?"}

@@ -158,17 +158,21 @@ export const Assets: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "Available":
-        return <span className="badge badge-success">Available</span>;
+        return <span className="badge badge-success" style={{ borderRadius: "12px", padding: "3px 10px" }}>Available</span>;
       case "Allocated":
-        return <span className="badge badge-info">Allocated</span>;
+        return <span className="badge badge-info" style={{ borderRadius: "12px", padding: "3px 10px" }}>Allocated</span>;
       case "Reserved":
-        return <span className="badge badge-warning">Reserved</span>;
+        return <span className="badge badge-warning" style={{ borderRadius: "12px", padding: "3px 10px" }}>Reserved</span>;
       case "UnderMaintenance":
-        return <span className="badge badge-danger">Maintenance</span>;
+        return <span className="badge badge-danger" style={{ borderRadius: "12px", padding: "3px 10px" }}>Maintenance</span>;
       case "Lost":
-        return <span className="badge badge-danger" style={{ backgroundColor: "rgba(220, 38, 38, 0.25)" }}>Lost</span>;
+        return <span className="badge badge-danger" style={{ borderRadius: "12px", padding: "3px 10px", backgroundColor: "#FFE4E6", color: "#9F1239", border: "1px solid #FDA4AF" }}>Lost</span>;
+      case "Retired":
+        return <span className="badge badge-muted" style={{ borderRadius: "12px", padding: "3px 10px" }}>Retired</span>;
+      case "Disposed":
+        return <span className="badge badge-muted" style={{ borderRadius: "12px", padding: "3px 10px", backgroundColor: "#F3F4F6", color: "#374151", border: "1px solid #E5E7EB" }}>Disposed</span>;
       default:
-        return <span className="badge badge-muted">{status}</span>;
+        return <span className="badge badge-muted" style={{ borderRadius: "12px", padding: "3px 10px" }}>{status}</span>;
     }
   };
 
@@ -288,7 +292,7 @@ export const Assets: React.FC = () => {
                   <td>{asset.location}</td>
                   <td>{getStatusBadge(asset.status)}</td>
                   <td>
-                    <span className={`badge ${asset.is_bookable ? "badge-info" : "badge-muted"}`}>
+                    <span className={`badge ${asset.is_bookable ? "badge-info" : "badge-muted"}`} style={{ borderRadius: "12px", padding: "3px 10px" }}>
                       {asset.is_bookable ? "Yes" : "No"}
                     </span>
                   </td>

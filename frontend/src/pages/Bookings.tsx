@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { Calendar, Plus, Clock, HelpCircle, X, MapPin, Grid, CalendarDays, CheckCircle2 } from "lucide-react";
+import { Calendar, Plus, Clock, HelpCircle, X, MapPin, Grid, CalendarDays, CheckCircle2, AlertTriangle } from "lucide-react";
 
 interface Booking {
   id: number;
@@ -109,6 +109,28 @@ export const Bookings: React.FC = () => {
     } catch (err: any) {
       showToast("error", err.message);
     }
+  };
+
+  const checkOverlapConflict = () => {
+    const targetAssetId = selectedAsset ? selectedAsset.id : assetId;
+    if (!targetAssetId || !startDate || !startTime || !endDate || !endTime) return null;
+    
+    const start = new Date(`${startDate}T${startTime}`);
+    const end = new Date(`${endDate}T${endTime}`);
+    
+    if (start >= end) return null;
+    
+    const overlap = bookings.find((b) => {
+      if (b.asset_id !== Number(targetAssetId)) return false;
+      if (b.status === "Cancelled") return false;
+      
+      const bStart = new Date(b.start_time);
+      const bEnd = new Date(b.end_time);
+      
+      return bStart < end && bEnd > start;
+    });
+    
+    return overlap || null;
   };
 
   if (loading) {
@@ -344,16 +366,34 @@ export const Bookings: React.FC = () => {
                   </div>
                 </div>
 
-                <div style={{ marginTop: "24px", padding: "16px", backgroundColor: "rgba(91, 92, 235, 0.03)", border: "1px solid rgba(91, 92, 235, 0.15)", borderRadius: "var(--radius-sm)", fontSize: "13px" }}>
-                  <strong style={{ color: "var(--accent-primary)", display: "block", marginBottom: "4px" }}>Verification check:</strong>
-                  The system enforces real-time database locks on the resource during processing to guarantee zero overlap collisions.
-                </div>
+                {(() => {
+                  const conflict = checkOverlapConflict();
+                  if (conflict) {
+                    return (
+                      <div className="conflict-alert animate-fade" style={{ marginTop: "20px", border: "1px solid rgba(244, 63, 94, 0.15)", backgroundColor: "rgba(244, 63, 94, 0.02)", padding: "14px", borderRadius: "var(--radius-md)" }}>
+                        <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "6px" }}>
+                          <AlertTriangle size={15} color="var(--danger)" />
+                          <span style={{ fontSize: "12.5px", fontWeight: 700, color: "var(--danger)" }}>Scheduling Overlap Detected</span>
+                        </div>
+                        <p style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: "1.4" }}>
+                          Already booked by <strong>{conflict.booked_by_name}</strong> from {new Date(conflict.start_time).toLocaleTimeString()} to {new Date(conflict.end_time).toLocaleTimeString()}.
+                        </p>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div style={{ marginTop: "20px", padding: "14px", backgroundColor: "rgba(49, 46, 129, 0.02)", border: "1px solid var(--border-color)", borderRadius: "var(--radius-md)", fontSize: "12.5px" }}>
+                      <strong style={{ color: "var(--accent-primary)", display: "block", marginBottom: "4px" }}>Collision Avoidance Shield:</strong>
+                      System runs real-time row-locks on this resource to prevent concurrency overlaps.
+                    </div>
+                  );
+                })()}
               </div>
               <div className="modal-footer" style={{ borderTop: "1px solid var(--border-color)", padding: "16px 24px" }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowDrawer(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary">
+                <button type="submit" className="btn btn-primary" disabled={!!checkOverlapConflict()}>
                   Confirm Reservation
                 </button>
               </div>

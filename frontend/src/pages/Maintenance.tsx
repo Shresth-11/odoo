@@ -261,6 +261,37 @@ export const Maintenance: React.FC = () => {
                       {req.issue_description}
                     </p>
 
+                    {/* Step-based workflow progress tracker */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "6px 0", padding: "4px 0" }}>
+                      {["Pending", "Approved", "InProgress", "Resolved"].map((stepStatus, sIdx) => {
+                        const statuses = ["Pending", "Approved", "InProgress", "Resolved"];
+                        const isRejected = req.status === "Rejected";
+                        const currentStatus = req.status === "TechnicianAssigned" ? "InProgress" : req.status;
+                        const currentIdx = statuses.indexOf(currentStatus);
+                        const isActive = isRejected ? (stepStatus === "Pending") : (sIdx <= currentIdx);
+                        return (
+                          <React.Fragment key={stepStatus}>
+                            <div 
+                              style={{
+                                width: "8px",
+                                height: "8px",
+                                borderRadius: "50%",
+                                backgroundColor: isRejected && stepStatus === "Approved" ? "var(--danger)" : (isActive ? "var(--accent-primary)" : "var(--border-color)"),
+                                border: isActive ? "2px solid rgba(49, 46, 129, 0.15)" : "none",
+                              }} 
+                              title={`${stepStatus} state`} 
+                            />
+                            {sIdx < 3 && <div style={{
+                              flex: 1,
+                              height: "2px",
+                              backgroundColor: !isRejected && isActive && sIdx < currentIdx ? "var(--accent-primary)" : "var(--border-color)",
+                              margin: "0 4px"
+                            }} />}
+                          </React.Fragment>
+                        );
+                      })}
+                    </div>
+
                     <div style={{ fontSize: "10px", color: "var(--text-muted)", borderTop: "1px solid var(--border-color)", paddingTop: "6px", marginTop: "2px" }}>
                       Opened by: {req.raised_by_name} <br />
                       {req.technician_name ? `Tech: ${req.technician_name}` : "Unassigned"}

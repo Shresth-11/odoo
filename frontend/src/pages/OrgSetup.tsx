@@ -328,24 +328,29 @@ export const OrgSetup: React.FC = () => {
           </div>
 
           {/* Departments Directory */}
-          <div className="card">
-            <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>Registered Hierarchy</h3>
-            <div className="table-container">
-              <table className="table-el">
-                <thead>
-                  <tr>
-                    <th>Department</th>
-                    <th>Parent</th>
-                    <th>Dept Head</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {departments.map((dept) => (
-                    <tr key={dept.id}>
-                      <td style={{ fontWeight: 600 }}>{dept.name}</td>
-                      <td>{dept.parent_department_name || <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>—</span>}</td>
-                      <td>{dept.department_head_name || <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>Unassigned</span>}</td>
+          <div className="card" style={{ borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-sm)" }}>
+            <h3 style={{ fontSize: "15px", fontWeight: 700, marginBottom: "16px", color: "var(--text-primary)" }}>Registered Hierarchy</h3>
+            {departments.length === 0 ? (
+              <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--text-muted)", fontSize: "13px" }}>
+                No departments registered yet. Set up your organization's hierarchy using the form on the left.
+              </div>
+            ) : (
+              <div className="table-container">
+                <table className="table-el">
+                  <thead>
+                    <tr>
+                      <th>Department</th>
+                      <th>Parent</th>
+                      <th>Dept Head</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {departments.map((dept) => (
+                      <tr key={dept.id}>
+                        <td style={{ fontWeight: 600 }}>{dept.name}</td>
+                        <td>{dept.parent_department_name || <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>—</span>}</td>
+                        <td>{dept.department_head_name || <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>Unassigned</span>}</td>
                       <td>
                         <div style={{ display: "flex", gap: "8px" }}>
                           <button className="btn btn-secondary btn-sm" onClick={() => handleEditDept(dept)}>
@@ -365,8 +370,9 @@ export const OrgSetup: React.FC = () => {
                 </tbody>
               </table>
             </div>
-          </div>
+          )}
         </div>
+      </div>
       )}
 
       {/* TABS 2: ASSET CATEGORIES */}
@@ -476,17 +482,22 @@ export const OrgSetup: React.FC = () => {
           </div>
 
           {/* Categories directory */}
-          <div className="card">
-            <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>Asset Categories Schema</h3>
-            <div className="table-container">
-              <table className="table-el">
-                <thead>
-                  <tr>
-                    <th>Category</th>
-                    <th>Custom Fields Schema</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
+          <div className="card" style={{ borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-sm)" }}>
+            <h3 style={{ fontSize: "15px", fontWeight: 700, marginBottom: "16px", color: "var(--text-primary)" }}>Asset Categories Schema</h3>
+            {categories.length === 0 ? (
+              <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--text-muted)", fontSize: "13px" }}>
+                No custom categories defined. Add your first category schema on the left to get started.
+              </div>
+            ) : (
+              <div className="table-container">
+                <table className="table-el">
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Custom Fields Schema</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
                 <tbody>
                   {categories.map((cat) => (
                     <tr key={cat.id}>
@@ -533,27 +544,33 @@ export const OrgSetup: React.FC = () => {
                 </tbody>
               </table>
             </div>
-          </div>
+          )}
         </div>
+      </div>
       )}
 
       {/* TABS 3: EMPLOYEE DIRECTORY & PROMOTION */}
       {activeTab === "employees" && (
-        <div className="card">
-          <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>Employee Administration Directory</h3>
-          <div className="table-container">
-            <table className="table-el">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Department</th>
-                  <th>Current Role</th>
-                  <th>Status</th>
-                  <th>Role Promotion Controls</th>
-                  <th>Status Action</th>
-                </tr>
-              </thead>
+        <div className="card animate-fade" style={{ borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-sm)" }}>
+          <h3 style={{ fontSize: "15px", fontWeight: 700, marginBottom: "16px", color: "var(--text-primary)" }}>Employee Administration Directory</h3>
+          {employees.length === 0 ? (
+            <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--text-muted)", fontSize: "13px" }}>
+              No staff members registered in the database yet.
+            </div>
+          ) : (
+            <div className="table-container">
+              <table className="table-el">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Current Role</th>
+                    <th>Status</th>
+                    <th>Role Promotion Controls</th>
+                    <th>Status Action</th>
+                  </tr>
+                </thead>
               <tbody>
                 {employees.map((emp) => (
                   <tr key={emp.id}>
@@ -617,7 +634,8 @@ export const OrgSetup: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        )}
+      </div>
       )}
     </div>
   );

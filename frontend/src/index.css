@@ -1,38 +1,40 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 :root {
-  /* Color Tokens - Linear x Stripe x Notion */
-  --bg-primary: #F8FAFC;
-  --bg-secondary: #FFFFFF;
+  /* Color Palette - Legora-Inspired Restraint */
+  --bg-primary: #FAFBFD;             /* Clean, off-white workspace background */
+  --bg-secondary: #FFFFFF;           /* Crisp card backgrounds */
   --bg-tertiary: #F1F5F9;
-  --sidebar-bg: #0F172A;
-  --border-color: #E2E8F0;
+  --sidebar-bg: #0B0F19;             /* Elegant, dark slate sidebar */
+  --border-color: #E9EDF2;           /* Subtle card borders */
   
-  --accent-primary: #5B5CEB;
-  --accent-secondary: #00C2A8;
-  --accent-gradient: linear-gradient(135deg, #5B5CEB 0%, #8B5CF6 100%);
-  --accent-gradient-hover: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  --accent-primary: #312E81;         /* Restrained deep royal indigo brand color */
+  --accent-primary-hover: #1E1B4B;   /* Hover state indigo */
+  --accent-gradient: linear-gradient(135deg, #312E81 0%, #4338CA 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
   
-  --text-primary: #111827;
-  --text-secondary: #64748B;
-  --text-muted: #94A3B8;
-  
-  --success: #22C55E;
-  --warning: #F59E0B;
-  --danger: #EF4444;
-  --info: #3B82F6;
-  
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  
-  /* Shadows & Radius */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.02);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03);
-  --shadow-premium: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
-  
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  /* Semantic Accents - Used sparingly only for status tags and actions */
+  --success: #10B981;                /* Warm success emerald */
+  --warning: #F59E0B;                /* Soft warning amber */
+  --danger: #F43F5E;                 /* Gentle rose/red danger */
+  --info: #0EA5E9;                   /* Clear sky-blue information */
+
+  /* Typography Scale */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --text-primary: #0F172A;           /* Deep dark slate for maximum readability */
+  --text-secondary: #475569;         /* Muted grey slate */
+  --text-muted: #94A3B8;             /* Light caption muted grey */
+
+  /* Border Radius - Maxima Therapy Warmth */
+  --radius-sm: 8px;                  /* For badges and tag inputs */
+  --radius-md: 12px;                 /* Main card & button rounding (approachable/warm) */
+  --radius-lg: 16px;                 /* Layout panels & dialog modal containers */
+
+  /* Shadows - Subtle/Clean depth elevation scale */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01);
+  --shadow-md: 0 10px 20px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -2px rgba(0, 0, 0, 0.02), 0 0 0 1px rgba(0, 0, 0, 0.01);
+  --shadow-lg: 0 20px 32px -4px rgba(0, 0, 0, 0.04), 0 8px 12px -6px rgba(0, 0, 0, 0.03), 0 0 0 1px rgba(0, 0, 0, 0.015);
+  --shadow-premium: 0 30px 48px -6px rgba(0, 0, 0, 0.05), 0 12px 18px -8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.015);
   
   --sidebar-width: 260px;
   --header-height: 70px;
@@ -424,7 +426,7 @@ body {
   outline: none;
   background-color: white;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(91, 92, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(49, 46, 129, 0.12);
 }
 
 .form-control::placeholder {
@@ -459,12 +461,12 @@ body {
 .btn-primary {
   background-color: var(--accent-primary);
   color: white;
-  box-shadow: 0 1px 3px rgba(91, 92, 235, 0.2);
+  box-shadow: 0 1px 3px rgba(49, 46, 129, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: var(--accent-secondary);
-  box-shadow: 0 4px 10px rgba(0, 194, 168, 0.2);
+  background-color: var(--accent-primary-hover);
+  box-shadow: 0 4px 10px rgba(49, 46, 129, 0.2);
 }
 
 .btn-secondary {
@@ -1001,4 +1003,93 @@ body {
   .landing-sub {
     font-size: 16px;
   }
+}
+
+/* Custom Onboarding/Tabs/Setup Redesign Styles */
+.tabs-container {
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+.tabs-list {
+  display: flex;
+  list-style: none;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+}
+.tab-trigger {
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+.tab-trigger:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-tertiary);
+}
+.tab-trigger.active {
+  color: var(--accent-primary);
+  border-bottom-color: var(--accent-primary);
+  font-weight: 600;
+  background-color: rgba(49, 46, 129, 0.03);
+}
+
+/* Conflict and step states */
+.conflict-alert {
+  padding: 16px;
+  background-color: rgba(244, 63, 94, 0.03);
+  border: 1px solid rgba(244, 63, 94, 0.15);
+  border-radius: var(--radius-md);
+  margin-top: 12px;
+}
+
+.step-tracker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 12px 18px;
+  background-color: #F8FAFC;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+.step-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.step-node.active {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+.step-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--border-color);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+.step-node.active .step-circle {
+  background-color: var(--accent-primary);
+  color: white;
+}
+.step-line {
+  flex: 1;
+  height: 2px;
+  background-color: var(--border-color);
 }

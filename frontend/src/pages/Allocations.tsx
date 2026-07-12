@@ -77,6 +77,40 @@ export const Allocations: React.FC = () => {
   const [returningAlloc, setReturningAlloc] = useState<Allocation | null>(null);
   const [returnNotes, setReturnNotes] = useState("");
 
+  const getActiveHolder = (aId: number) => {
+    const activeAlloc = allocations.find(
+      (al) => al.asset_id === aId && al.status === "Active"
+    );
+    if (!activeAlloc) return "unknown custodian";
+    if (activeAlloc.employee_name) return `${activeAlloc.employee_name} (${activeAlloc.employee_email})`;
+    if (activeAlloc.department_name) return `Department: ${activeAlloc.department_name}`;
+    return "another custodian";
+  };
+
+  const triggerTransferRequest = async (aId: number) => {
+    try {
+      const activeAlloc = allocations.find(al => al.asset_id === aId && al.status === "Active");
+      if (!activeAlloc || !activeAlloc.employee_id) {
+        showToast("error", "Asset must be currently allocated to an employee to initiate a transfer.");
+        return;
+      }
+      
+      await apiFetch("/allocations/transfers", {
+        method: "POST",
+        body: JSON.stringify({
+          asset_id: aId,
+          to_employee_id: user?.id,
+        }),
+      });
+
+      showToast("success", `Custody transfer request raised successfully to ${activeAlloc.employee_name}`);
+      setAssetId("");
+      fetchData();
+    } catch (err: any) {
+      showToast("error", err.message);
+    }
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -212,15 +246,52 @@ export const Allocations: React.FC = () => {
               <div className="form-group">
                 <label className="form-label">Asset to Allocate</label>
                 <select className="form-control" value={assetId} onChange={(e) => setAssetId(e.target.value ? Number(e.target.value) : "")} required>
-                  <option value="">Select Available Asset</option>
-                  {assets
-                    .filter((a) => a.status === "Available")
-                    .map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.name} ({a.asset_tag})
-                      </option>
-                    ))}
+                  <option value="">Select Asset to Allocate</option>
+                  <optgroup label="Available Assets (Ready)">
+                    {assets
+                      .filter((a) => a.status === "Available")
+                      .map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.name} ({a.asset_tag})
+                        </option>
+                      ))}
+                  </optgroup>
+                  <optgroup label="Allocated Assets (Conflicts)">
+                    {assets
+                      .filter((a) => a.status === "Allocated")
+                      .map((a) => (
+                        <option key={a.id} value={a.id}>
+                          🚨 [Conflict] {a.name} ({a.asset_tag})
+                        </option>
+                      ))}
+                  </optgroup>
                 </select>
+                {(() => {
+                  const selectedAsset = assets.find((a) => a.id === assetId);
+                  if (selectedAsset && selectedAsset.status === "Allocated") {
+                    const holder = getActiveHolder(selectedAsset.id);
+                    return (
+                      <div className="conflict-alert animate-fade" style={{ marginTop: "12px", border: "1px solid rgba(244, 63, 94, 0.15)", backgroundColor: "rgba(244, 63, 94, 0.02)", padding: "16px", borderRadius: "var(--radius-md)" }}>
+                        <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
+                          <AlertTriangle size={16} color="var(--danger)" />
+                          <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--danger)" }}>Double-Allocation Warning</span>
+                        </div>
+                        <p style={{ fontSize: "12.5px", color: "var(--text-secondary)", lineHeight: "1.4" }}>
+                          This asset is currently held by <strong>{holder}</strong>. Direct allocation is blocked.
+                        </p>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          style={{ marginTop: "12px", backgroundColor: "var(--danger)", border: "none" }}
+                          onClick={() => triggerTransferRequest(selectedAsset.id)}
+                        >
+                          Request Custody Transfer
+                        </button>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
 
               <div className="form-group">
@@ -269,7 +340,10 @@ export const Allocations: React.FC = () => {
                 <textarea className="form-control" rows={2} placeholder="Physical state comments..." value={conditionNotes} onChange={(e) => setConditionNotes(e.target.value)} />
               </div>
 
-              <button type="submit" className="btn btn-primary">Allocate Asset</button>
+              <button type="submit" className="btn btn-primary" disabled={(() => {
+                const selectedAsset = assets.find((a) => a.id === assetId);
+                return selectedAsset ? selectedAsset.status !== "Available" : false;
+              })()}>Allocate Asset</button>
             </form>
           </div>
         ) : (

@@ -383,9 +383,27 @@ export const Audits: React.FC = () => {
             )}
           </div>
 
+          {/* Horizontal Step progress tracker */}
+          <div className="step-tracker animate-fade">
+            <div className="step-node active">
+              <div className="step-circle">1</div>
+              <span>Initialized</span>
+            </div>
+            <div className="step-line" style={{ backgroundColor: activeCycle.status === "Closed" ? "var(--accent-primary)" : "var(--border-color)" }} />
+            <div className={`step-node ${activeCycle.status === "Open" ? "active" : ""}`}>
+              <div className="step-circle">2</div>
+              <span>Auditing Open</span>
+            </div>
+            <div className="step-line" style={{ backgroundColor: activeCycle.status === "Closed" ? "var(--accent-primary)" : "var(--border-color)" }} />
+            <div className={`step-node ${activeCycle.status === "Closed" ? "active" : ""}`}>
+              <div className="step-circle">3</div>
+              <span>Closed & Verified</span>
+            </div>
+          </div>
+
           {/* Report summary card */}
           {discrepancyReport && (
-            <div className="card" style={{ marginBottom: "24px", display: "flex", flexWrap: "wrap", gap: "24px", justifyContent: "space-between" }}>
+            <div className="card" style={{ marginBottom: "24px", display: "flex", flexWrap: "wrap", gap: "24px", justifyContent: "space-between", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-sm)" }}>
               <div>
                 <span className="card-title" style={{ fontSize: "12px" }}>Audited Rate</span>
                 <div style={{ fontSize: "24px", fontWeight: 700, marginTop: "4px" }}>

@@ -51,6 +51,39 @@ export const Dashboard: React.FC = () => {
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(true);
+  const [animateKpis, setAnimateKpis] = useState({
+    assetsAvailable: 0,
+    assetsAllocated: 0,
+    overdueAllocations: 0,
+    activeBookings: 0,
+    pendingMaintenance: 0,
+    assetsUnderMaintenance: 0
+  });
+
+  useEffect(() => {
+    if (!kpis) return;
+    
+    const duration = 400; // ms
+    const startTime = performance.now();
+    
+    const step = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      setAnimateKpis({
+        assetsAvailable: Math.round(progress * (kpis.assetsAvailable || 0)),
+        assetsAllocated: Math.round(progress * (kpis.assetsAllocated || 0)),
+        overdueAllocations: Math.round(progress * (kpis.overdueAllocations || 0)),
+        activeBookings: Math.round(progress * (kpis.activeBookings || 0)),
+        pendingMaintenance: Math.round(progress * (kpis.pendingMaintenance || 0)),
+        assetsUnderMaintenance: Math.round(progress * (kpis.assetsUnderMaintenance || 0)),
+      });
+      
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+    
+    requestAnimationFrame(step);
+  }, [kpis]);
 
   const fetchDashboardData = async () => {
     try {
@@ -81,10 +114,12 @@ export const Dashboard: React.FC = () => {
           className="card animate-fade"
           style={{
             marginBottom: "24px",
-            background: "linear-gradient(135deg, rgba(91, 92, 235, 0.03) 0%, rgba(91, 92, 235, 0.01) 100%)",
-            border: "1px solid rgba(91, 92, 235, 0.15)",
+            background: "#FFFFFF",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            boxShadow: "var(--shadow-sm)",
             position: "relative",
-            padding: "20px",
+            padding: "24px",
           }}
         >
           <button
@@ -187,59 +222,65 @@ export const Dashboard: React.FC = () => {
       )}
 
       {/* 1. KPI Panel */}
-      <div className="grid-cols-3">
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Assets Available</span>
-            <CheckCircle color="var(--success)" size={20} />
+      <div className="grid-cols-3" style={{ gap: "20px" }}>
+        <div className="card animate-fade" style={{ borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-sm)", border: "1px solid var(--border-color)", padding: "24px", backgroundColor: "#FFFFFF" }}>
+          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+            <span className="card-title" style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)" }}>Assets Available</span>
+            <CheckCircle color="var(--success)" size={18} />
           </div>
-          <div className="kpi-value">{kpis?.assetsAvailable || 0}</div>
-          <div className="kpi-desc">Physical resources ready for allocation or booking</div>
+          <div className="kpi-value" style={{ fontSize: "28px", fontWeight: 700, color: "var(--text-primary)" }}>{animateKpis.assetsAvailable}</div>
+          <div className="kpi-desc" style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>Physical resources ready for allocation or booking</div>
         </div>
 
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Allocated Assets</span>
-            <FileSpreadsheet color="var(--info)" size={20} />
+        <div className="card animate-fade" style={{ borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-sm)", border: "1px solid var(--border-color)", padding: "24px", backgroundColor: "#FFFFFF" }}>
+          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+            <span className="card-title" style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)" }}>Allocated Assets</span>
+            <FileSpreadsheet color="var(--info)" size={18} />
           </div>
-          <div className="kpi-value">{kpis?.assetsAllocated || 0}</div>
-          <div className="kpi-desc">Assets currently held by employees or departments</div>
+          <div className="kpi-value" style={{ fontSize: "28px", fontWeight: 700, color: "var(--text-primary)" }}>{animateKpis.assetsAllocated}</div>
+          <div className="kpi-desc" style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>Assets currently held by employees or departments</div>
         </div>
 
-        <div className="card" style={{ borderColor: (kpis?.overdueAllocations || 0) > 0 ? "rgba(239, 68, 68, 0.4)" : "var(--border-color)" }}>
-          <div className="card-header">
-            <span className="card-title" style={{ color: (kpis?.overdueAllocations || 0) > 0 ? "var(--danger)" : "var(--text-secondary)" }}>Overdue Items</span>
-            <ShieldAlert color="var(--danger)" size={20} />
+        <div className="card animate-fade" style={{ 
+          borderRadius: "var(--radius-md)", 
+          boxShadow: "var(--shadow-sm)", 
+          border: (kpis?.overdueAllocations || 0) > 0 ? "1px solid rgba(244, 63, 94, 0.25)" : "1px solid var(--border-color)", 
+          padding: "24px", 
+          backgroundColor: (kpis?.overdueAllocations || 0) > 0 ? "rgba(244, 63, 94, 0.01)" : "#FFFFFF" 
+        }}>
+          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+            <span className="card-title" style={{ fontSize: "14px", fontWeight: 500, color: (kpis?.overdueAllocations || 0) > 0 ? "var(--danger)" : "var(--text-secondary)" }}>Overdue Items</span>
+            <ShieldAlert color="var(--danger)" size={18} />
           </div>
-          <div className="kpi-value" style={{ color: (kpis?.overdueAllocations || 0) > 0 ? "var(--danger)" : "var(--text-primary)" }}>{kpis?.overdueAllocations || 0}</div>
-          <div className="kpi-desc">Allocations past their expected return dates</div>
+          <div className="kpi-value" style={{ fontSize: "28px", fontWeight: 700, color: (kpis?.overdueAllocations || 0) > 0 ? "var(--danger)" : "var(--text-primary)" }}>{animateKpis.overdueAllocations}</div>
+          <div className="kpi-desc" style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>Allocations past their expected return dates</div>
         </div>
 
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Active Bookings</span>
-            <CalendarCheck color="var(--accent-primary)" size={20} />
+        <div className="card animate-fade" style={{ borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-sm)", border: "1px solid var(--border-color)", padding: "24px", backgroundColor: "#FFFFFF" }}>
+          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+            <span className="card-title" style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)" }}>Active Bookings</span>
+            <CalendarCheck color="var(--accent-primary)" size={18} />
           </div>
-          <div className="kpi-value">{kpis?.activeBookings || 0}</div>
-          <div className="kpi-desc">Upcoming and ongoing room or resource reservations</div>
+          <div className="kpi-value" style={{ fontSize: "28px", fontWeight: 700, color: "var(--text-primary)" }}>{animateKpis.activeBookings}</div>
+          <div className="kpi-desc" style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>Upcoming and ongoing room or resource reservations</div>
         </div>
 
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Pending Maintenance</span>
-            <PlusCircle color="var(--warning)" size={20} />
+        <div className="card animate-fade" style={{ borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-sm)", border: "1px solid var(--border-color)", padding: "24px", backgroundColor: "#FFFFFF" }}>
+          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+            <span className="card-title" style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)" }}>Pending Maintenance</span>
+            <PlusCircle color="var(--warning)" size={18} />
           </div>
-          <div className="kpi-value">{kpis?.pendingMaintenance || 0}</div>
-          <div className="kpi-desc">Assets queued for technicians or under repair</div>
+          <div className="kpi-value" style={{ fontSize: "28px", fontWeight: 700, color: "var(--text-primary)" }}>{animateKpis.pendingMaintenance}</div>
+          <div className="kpi-desc" style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>Assets queued for technicians or under repair</div>
         </div>
 
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Under Maintenance</span>
-            <Clock color="var(--text-muted)" size={20} />
+        <div className="card animate-fade" style={{ borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-sm)", border: "1px solid var(--border-color)", padding: "24px", backgroundColor: "#FFFFFF" }}>
+          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+            <span className="card-title" style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)" }}>Under Maintenance</span>
+            <Clock color="var(--text-muted)" size={18} />
           </div>
-          <div className="kpi-value">{kpis?.assetsUnderMaintenance || 0}</div>
-          <div className="kpi-desc">Assets currently out-of-service for maintenance</div>
+          <div className="kpi-value" style={{ fontSize: "28px", fontWeight: 700, color: "var(--text-primary)" }}>{animateKpis.assetsUnderMaintenance}</div>
+          <div className="kpi-desc" style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>Assets currently out-of-service for maintenance</div>
         </div>
       </div>
 
@@ -295,8 +336,8 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* 2. Quick Actions Panel */}
-      <div className="card" style={{ marginBottom: "32px" }}>
-        <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>Quick Administration Actions</h3>
+      <div className="card animate-fade" style={{ marginBottom: "32px", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-sm)", border: "1px solid var(--border-color)", padding: "24px", backgroundColor: "#FFFFFF" }}>
+        <h3 style={{ fontSize: "15px", fontWeight: 700, marginBottom: "16px", color: "var(--text-primary)" }}>Quick Administration Actions</h3>
         <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
           {user?.role === "AssetManager" && (
             <Link to="/assets" className="btn btn-primary">
@@ -325,14 +366,22 @@ export const Dashboard: React.FC = () => {
       {/* 3. Bottom Grid: Overdue list & Activity log */}
       <div className="grid-cols-2">
         {/* Overdue Items list */}
-        <div className="card" style={{ display: "flex", flexDirection: "column" }}>
-          <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-            <ShieldAlert size={18} color="var(--danger)" />
-            Overdue Returns Alert List
+        <div className="card animate-fade" style={{ 
+          display: "flex", 
+          flexDirection: "column",
+          borderRadius: "var(--radius-md)",
+          boxShadow: "var(--shadow-sm)",
+          backgroundColor: overdueItems.length > 0 ? "rgba(244, 63, 94, 0.015)" : "#FFFFFF",
+          border: overdueItems.length > 0 ? "1px solid rgba(244, 63, 94, 0.2)" : "1px solid var(--border-color)",
+          padding: "24px"
+        }}>
+          <h3 style={{ fontSize: "15px", fontWeight: 700, marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px", color: overdueItems.length > 0 ? "var(--danger)" : "var(--text-primary)" }}>
+            <ShieldAlert size={18} color={overdueItems.length > 0 ? "var(--danger)" : "var(--text-secondary)"} />
+            Overdue Returns Ledger
           </h3>
           <div style={{ flex: 1, overflowY: "auto" }}>
             {overdueItems.length === 0 ? (
-              <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)", fontSize: "14px" }}>
+              <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--text-muted)", fontSize: "13px" }}>
                 Excellent! There are no overdue allocations in the system.
               </div>
             ) : (
@@ -369,8 +418,8 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* System Activity Feed */}
-        <div className="card">
-          <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+        <div className="card animate-fade" style={{ borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-sm)", border: "1px solid var(--border-color)", padding: "24px", backgroundColor: "#FFFFFF" }}>
+          <h3 style={{ fontSize: "15px", fontWeight: 700, marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px", color: "var(--text-primary)" }}>
             <Activity size={18} color="var(--accent-primary)" />
             System Audit Trail Feed
           </h3>

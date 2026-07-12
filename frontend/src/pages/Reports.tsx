@@ -95,7 +95,7 @@ export const Reports: React.FC = () => {
                         style={{
                           width: `${percent}%`,
                           height: "100%",
-                          background: "linear-gradient(90deg, var(--accent-primary) 0%, var(--success) 100%)",
+                          backgroundColor: "var(--accent-primary)",
                           borderRadius: "6px",
                           transition: "width 0.8s ease-out",
                         }}
@@ -131,7 +131,7 @@ export const Reports: React.FC = () => {
                         style={{
                           width: `${percent}%`,
                           height: "100%",
-                          background: "linear-gradient(90deg, var(--warning) 0%, var(--danger) 100%)",
+                          backgroundColor: "var(--danger)",
                           borderRadius: "6px",
                           transition: "width 0.8s ease-out",
                         }}
