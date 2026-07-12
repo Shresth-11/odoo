@@ -93,7 +93,7 @@ export const Login: React.FC = () => {
     }
   };
 
-  const fillCredentials = (type: "admin" | "employee" | "manager") => {
+  const fillCredentials = (type: "admin" | "employee" | "manager" | "head") => {
     if (type === "admin") {
       setEmail("admin@assetflow.com");
       setPassword("AssetFlowSecure2026!");
@@ -102,6 +102,9 @@ export const Login: React.FC = () => {
       setPassword("AssetFlowSecure2026!");
     } else if (type === "manager") {
       setEmail("manager@assetflow.com");
+      setPassword("AssetFlowSecure2026!");
+    } else if (type === "head") {
+      setEmail("head@assetflow.com");
       setPassword("AssetFlowSecure2026!");
     }
     setFormState("login");
@@ -324,6 +327,32 @@ export const Login: React.FC = () => {
           )}
         </div>
 
+        {/* Quick-fill demo credentials section */}
+        {formState === "login" && (
+          <div style={{ marginTop: "24px", paddingTop: "20px", borderTop: "2px solid var(--border-color)" }}>
+            <span style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", color: "var(--text-secondary)", display: "block", marginBottom: "12px", textAlign: "center" }}>
+              Quick-fill demo roles
+            </span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                <button type="button" className="btn btn-secondary btn-sm" style={{ fontWeight: 700 }} onClick={() => fillCredentials("admin")}>
+                  Admin
+                </button>
+                <button type="button" className="btn btn-secondary btn-sm" style={{ fontWeight: 700 }} onClick={() => fillCredentials("manager")}>
+                  Asset Manager
+                </button>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                <button type="button" className="btn btn-secondary btn-sm" style={{ fontWeight: 700 }} onClick={() => fillCredentials("head")}>
+                  Dept Head
+                </button>
+                <button type="button" className="btn btn-secondary btn-sm" style={{ fontWeight: 700 }} onClick={() => fillCredentials("employee")}>
+                  Employee
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
