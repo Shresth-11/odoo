@@ -6,8 +6,36 @@ import db from "../config/db";
 import { authenticateJWT, AuthenticatedRequest } from "../middleware/auth";
 import { logActivity, createNotification } from "../utils/activity";
 
+import path from "path";
+
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwtkeyforassetflowerp2026";
+
+// Diagnostic Endpoint to seed/migrate database on demand
+router.get("/init-db", async (req, res) => {
+  try {
+    console.log("[Diagnostic API] Running migrations...");
+    await db.migrate.latest({
+      directory: path.join(__dirname, "../db/migrations"),
+    });
+    console.log("[Diagnostic API] Running seeds...");
+    await db.seed.run({
+      directory: path.join(__dirname, "../db/seeds"),
+    });
+    return res.json({
+      status: "Success",
+      message: "Database migrated and seeded successfully with demo data",
+    });
+  } catch (error: any) {
+    console.error("[Diagnostic API] Migration/Seed error:", error);
+    return res.status(500).json({
+      status: "Error",
+      message: "Failed to initialize database",
+      error: error.message,
+      stack: error.stack,
+    });
+  }
+});
 
 // Zod schemas for input validation
 const signupSchema = z.object({
