@@ -193,11 +193,9 @@ export const Assets: React.FC = () => {
             />
           </div>
 
-          {(user?.role === "Admin" || user?.role === "AssetManager") && (
-            <button className="btn btn-primary" onClick={() => setShowRegModal(true)}>
-              <Plus size={16} /> Register Asset
-            </button>
-          )}
+          <button className="btn btn-primary" onClick={() => setShowRegModal(true)}>
+            <Plus size={16} /> Register Asset
+          </button>
         </div>
 
         {/* Filters Row */}
