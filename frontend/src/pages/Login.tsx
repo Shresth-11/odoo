@@ -324,32 +324,7 @@ export const Login: React.FC = () => {
           )}
         </div>
 
-        {/* Demo Quick Fills (Only shown during Login phase) */}
-        {formState === "login" && (
-          <div
-            style={{
-              marginTop: "24px",
-              paddingTop: "20px",
-              borderTop: "1px solid var(--border-color)",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "10px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              Quick Fill Credentials
-            </div>
-            <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
-              <button className="btn btn-secondary btn-sm" style={{ padding: "4px 8px" }} onClick={() => fillCredentials("admin")}>
-                Admin
-              </button>
-              <button className="btn btn-secondary btn-sm" style={{ padding: "4px 8px" }} onClick={() => fillCredentials("manager")}>
-                Asset Mgr
-              </button>
-              <button className="btn btn-secondary btn-sm" style={{ padding: "4px 8px" }} onClick={() => fillCredentials("employee")}>
-                Employee
-              </button>
-            </div>
-          </div>
-        )}
+
       </div>
     </div>
   );

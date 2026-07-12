@@ -44,6 +44,7 @@ export const Bookings: React.FC = () => {
   const [startTime, setStartTime] = useState("");
   const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -64,8 +65,20 @@ export const Bookings: React.FC = () => {
     fetchData();
   }, []);
 
+  const openBookingDrawer = (asset: Asset | null) => {
+    setSelectedAsset(asset);
+    setAssetId(asset ? asset.id : "");
+    setStartDate("");
+    setStartTime("");
+    setEndDate("");
+    setEndTime("");
+    setSubmitError(null);
+    setShowDrawer(true);
+  };
+
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
 
     const targetAssetId = selectedAsset ? selectedAsset.id : assetId;
     if (!targetAssetId || !startDate || !startTime || !endDate || !endTime) {
@@ -93,10 +106,11 @@ export const Bookings: React.FC = () => {
       setStartTime("");
       setEndDate("");
       setEndTime("");
+      setSubmitError(null);
       setShowDrawer(false);
       fetchData();
     } catch (err: any) {
-      showToast("error", err.message);
+      setSubmitError(err.message || "Overlap conflict detected or database lock error occurred.");
     }
   };
 
@@ -169,7 +183,7 @@ export const Bookings: React.FC = () => {
             <Grid size={16} /> Bookable Catalog
           </button>
         </div>
-        <button className="btn btn-primary" onClick={() => { setSelectedAsset(null); setShowDrawer(true); }}>
+        <button className="btn btn-primary" onClick={() => openBookingDrawer(null)}>
           <Plus size={16} /> New Reservation
         </button>
       </div>
@@ -196,10 +210,7 @@ export const Bookings: React.FC = () => {
               </div>
               <button
                 className="btn btn-secondary btn-sm btn-full"
-                onClick={() => {
-                  setSelectedAsset(asset);
-                  setShowDrawer(true);
-                }}
+                onClick={() => openBookingDrawer(asset)}
                 disabled={["Retired", "Disposed", "Lost", "UnderMaintenance"].includes(asset.status)}
               >
                 Book Resource
@@ -366,34 +377,30 @@ export const Bookings: React.FC = () => {
                   </div>
                 </div>
 
-                {(() => {
-                  const conflict = checkOverlapConflict();
-                  if (conflict) {
-                    return (
-                      <div className="conflict-alert animate-fade" style={{ marginTop: "20px", border: "1px solid rgba(244, 63, 94, 0.15)", backgroundColor: "rgba(244, 63, 94, 0.02)", padding: "14px", borderRadius: "var(--radius-md)" }}>
-                        <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "6px" }}>
-                          <AlertTriangle size={15} color="var(--danger)" />
-                          <span style={{ fontSize: "12.5px", fontWeight: 700, color: "var(--danger)" }}>Scheduling Overlap Detected</span>
-                        </div>
-                        <p style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: "1.4" }}>
-                          Already booked by <strong>{conflict.booked_by_name}</strong> from {new Date(conflict.start_time).toLocaleTimeString()} to {new Date(conflict.end_time).toLocaleTimeString()}.
-                        </p>
-                      </div>
-                    );
-                  }
-                  return (
-                    <div style={{ marginTop: "20px", padding: "14px", backgroundColor: "rgba(49, 46, 129, 0.02)", border: "1px solid var(--border-color)", borderRadius: "var(--radius-md)", fontSize: "12.5px" }}>
-                      <strong style={{ color: "var(--accent-primary)", display: "block", marginBottom: "4px" }}>Collision Avoidance Shield:</strong>
-                      System runs real-time row-locks on this resource to prevent concurrency overlaps.
+                {submitError && (
+                  <div className="conflict-alert animate-fade" style={{ marginTop: "20px", border: "1px solid rgba(244, 63, 94, 0.15)", backgroundColor: "rgba(244, 63, 94, 0.02)", padding: "14px", borderRadius: "var(--radius-md)" }}>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "6px" }}>
+                      <AlertTriangle size={15} color="var(--danger)" />
+                      <span style={{ fontSize: "12.5px", fontWeight: 700, color: "var(--danger)" }}>Reservation Failed</span>
                     </div>
-                  );
-                })()}
+                    <p style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: "1.4" }}>
+                      {submitError}
+                    </p>
+                  </div>
+                )}
+
+                {!submitError && (
+                  <div style={{ marginTop: "20px", padding: "14px", backgroundColor: "rgba(49, 46, 129, 0.02)", border: "1px solid var(--border-color)", borderRadius: "var(--radius-md)", fontSize: "12.5px" }}>
+                    <strong style={{ color: "var(--accent-primary)", display: "block", marginBottom: "4px" }}>Collision Avoidance Shield:</strong>
+                    System runs real-time row-locks on this resource to prevent concurrency overlaps.
+                  </div>
+                )}
               </div>
               <div className="modal-footer" style={{ borderTop: "1px solid var(--border-color)", padding: "16px 24px" }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowDrawer(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary" disabled={!!checkOverlapConflict()}>
+                <button type="submit" className="btn btn-primary">
                   Confirm Reservation
                 </button>
               </div>
