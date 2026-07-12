@@ -6,20 +6,20 @@ import path from "path";
 dotenv.config({ path: path.join(__dirname, "../../../.env") });
 
 export async function seed(knex: Knex): Promise<void> {
-  // Deletes ALL existing entries in reverse order
-  await knex.raw("TRUNCATE TABLE activity_logs CASCADE;");
-  await knex.raw("TRUNCATE TABLE notifications CASCADE;");
-  await knex.raw("TRUNCATE TABLE audit_results CASCADE;");
-  await knex.raw("TRUNCATE TABLE audit_assignments CASCADE;");
-  await knex.raw("TRUNCATE TABLE audit_cycles CASCADE;");
-  await knex.raw("TRUNCATE TABLE maintenance_requests CASCADE;");
-  await knex.raw("TRUNCATE TABLE resource_bookings CASCADE;");
-  await knex.raw("TRUNCATE TABLE transfer_requests CASCADE;");
-  await knex.raw("TRUNCATE TABLE asset_allocations CASCADE;");
-  await knex.raw("TRUNCATE TABLE assets CASCADE;");
-  await knex.raw("TRUNCATE TABLE asset_categories CASCADE;");
-  await knex.raw("TRUNCATE TABLE employees CASCADE;");
-  await knex.raw("TRUNCATE TABLE departments CASCADE;");
+  // Deletes ALL existing entries in reverse order using standard DELETE queries
+  await knex("activity_logs").del();
+  await knex("notifications").del();
+  await knex("audit_results").del();
+  await knex("audit_assignments").del();
+  await knex("audit_cycles").del();
+  await knex("maintenance_requests").del();
+  await knex("resource_bookings").del();
+  await knex("transfer_requests").del();
+  await knex("asset_allocations").del();
+  await knex("assets").del();
+  await knex("asset_categories").del();
+  await knex("employees").del();
+  await knex("departments").del();
 
   // Reset tag sequence
   await knex.raw("ALTER SEQUENCE seq_asset_tags RESTART WITH 100;");
