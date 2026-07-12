@@ -14,6 +14,17 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwtkeyforassetflowerp20
 // Diagnostic Endpoint to seed/migrate database on demand
 router.get("/init-db", async (req, res) => {
   try {
+    const hasTable = await db.schema.hasTable("knex_migrations");
+    if (hasTable) {
+      console.log("[Diagnostic API] Normalizing migration filename extensions in registry...");
+      const isProduction = process.env.NODE_ENV === "production" || __filename.endsWith(".js");
+      if (isProduction) {
+        await db.raw("UPDATE knex_migrations SET name = REPLACE(name, '.ts', '.js');");
+      } else {
+        await db.raw("UPDATE knex_migrations SET name = REPLACE(name, '.js', '.ts');");
+      }
+    }
+
     console.log("[Diagnostic API] Running migrations...");
     await db.migrate.latest({
       directory: path.join(__dirname, "../db/migrations"),

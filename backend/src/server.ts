@@ -11,6 +11,17 @@ import db from "./config/db";
 // Run database migrations and seeds automatically on startup
 const runDbInitialization = async () => {
   try {
+    const hasTable = await db.schema.hasTable("knex_migrations");
+    if (hasTable) {
+      console.log("[Database] Normalizing migration filename extensions in registry...");
+      const isProduction = process.env.NODE_ENV === "production" || __filename.endsWith(".js");
+      if (isProduction) {
+        await db.raw("UPDATE knex_migrations SET name = REPLACE(name, '.ts', '.js');");
+      } else {
+        await db.raw("UPDATE knex_migrations SET name = REPLACE(name, '.js', '.ts');");
+      }
+    }
+
     console.log("[Database] Running migrations...");
     await db.migrate.latest({
       directory: path.join(__dirname, "./db/migrations"),
